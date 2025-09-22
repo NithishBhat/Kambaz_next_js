@@ -94,7 +94,7 @@ Text documents are often broken up into several sections and subsections. Each s
       <ul id="wd-my-books">
         <li>Dune</li>
         <li>Lord of the Rings</li>
-        <li>Ender's Game</li>
+        <li>Enders Game</li>
         <li>Red Mars</li>
         <li>The Forever War</li>
       </ul>
