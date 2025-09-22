@@ -6,7 +6,7 @@ export default function Signin() {
         <input placeholder="username" /> <br />
         <input placeholder="password" type="password" />
         <br />
-        <Link href="Profile"> Sign in </Link> <br />
+        <Link href="/Dashboard"> Sign in </Link> <br />
         <Link href="Signup"> Sign up </Link>
    </div>
    

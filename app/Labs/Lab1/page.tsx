@@ -75,6 +75,20 @@ Text documents are often broken up into several sections and subsections. Each s
           <li>Serve and enjoy!</li>
         </ol>
       </div>
+      <div id="wd-lists">
+        <h4>List Tags</h4>
+        <h5>Ordered List Tag</h5>
+        How to make pancakes:
+        <ol id="wd-pancakes"> ... </ol>
+        My favorite recipe:
+        <ol id="wd-your-favorite-recipe">
+          <li>Whip the egg white </li>
+          <li>mix the batter with the egg whites</li>
+          <li>Pour batter onto the skillet.</li>
+          <li>Cook until bubbly on top.</li>
+        </ol>
+      </div>
+
       <h5>Unordered List Tag</h5>
       My favorite books (in no particular order)
       <ul id="wd-my-books">
@@ -84,33 +98,93 @@ Text documents are often broken up into several sections and subsections. Each s
         <li>Red Mars</li>
         <li>The Forever War</li>
       </ul>
+
+      Your favorite books (in no particular order)
+      <ul id="wd-your-books">
+        <li>Harry potter 1</li>
+        <li>Harry potter 2</li>
+        <li>Harry potter 3</li>
+        <li>Harry potter 1</li>
+        <li>Harry potter 2</li>
+        <li>Harry potter 3</li>
+      </ul>
+
       <div id="wd-tables">
         <h4>Table Tag</h4>
-        <table border={1} width="100%">	
-          <thead>				
-            <tr>						
-              <th>Quiz</th>				
+        <table border={1} width="100%">
+          <thead>
+            <tr>
+              <th>Quiz</th>
               <th>Topic</th>
               <th>Date</th>
               <th>Grade</th>
             </tr>
           </thead>
-          <tbody>				
-            <tr>						
-              <td>Q1</td>			
+          <tbody>
+            <tr>
+              <td>Q1</td>
               <td>HTML</td>
               <td>2/3/21</td>
               <td>85</td>
             </tr>
-          </tbody>
-          <tfoot>					
             <tr>
-              <td colSpan={3}>Average</td>	
+              <td>Q2</td>
+              <td>CSS</td>
+              <td>2/10/21</td>
+              <td>90</td>
+            </tr>
+            <tr>
+              <td>Q3</td>
+              <td>HTML</td>
+              <td>1/3/21</td>
+              <td>81</td>
+            </tr>
+            <tr>
+              <td>Q4</td>
+              <td>HTML</td>
+              <td>3/3/21</td>
+              <td>82</td>
+            </tr>
+            <tr>
+              <td>Q5</td>
+              <td>HTML</td>
+              <td>21/3/21</td>
+              <td>83</td>
+            </tr>
+            <tr>
+              <td>Q6</td>
+              <td>HTML</td>
+              <td>4/3/21</td>
+              <td>84</td>
+            </tr>
+            <tr>
+              <td>Q7</td>
+              <td>HTML</td>
+              <td>5/3/21</td>
+              <td>85</td>
+            </tr>
+           
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={3}>Average</td>
               <td>90</td>
             </tr>
           </tfoot>
         </table>
       </div>
+      <div id="wd-images">
+        <h4>Image tag</h4>
+        Loading an image from the internet: <br />
+        <img id="wd-starship" width="400px"   src="https://www.staradvertiser.com/wp-content/uploads/2021/08/web1_Starship-gap2.jpg" />
+        <br />
+        Loading a local image:
+        <br />
+        <img id="wd-teslabot" src="/images/teslabot.jpeg" height="200px" />
+      </div>
+
+
+
       <div id="wd-forms">
         <h4>Form Elements</h4>
         <form id="wd-text-fields">
@@ -221,7 +295,7 @@ Text documents are often broken up into several sections and subsections. Each s
 
           <h4>Anchor tag</h4>
           Please
-          <a href="https://www.lipsum.com" id="wd-lipsum">click here</a>
+          <a href="https://www.lipsum.com" id="wd-lipsum"> click here </a>
           to get dummy text<br/>
 
         
