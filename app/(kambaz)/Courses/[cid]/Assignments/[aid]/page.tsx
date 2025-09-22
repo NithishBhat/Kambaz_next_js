@@ -105,7 +105,7 @@ export default function AssignmentEditor() {
           </tr><br />
         </table>
         <hr />
-        <button align="right" > Cancel</button> <button> Save</button> 
+        <button > Cancel</button> <button> Save</button> 
       </form>
     </div>
 );}
