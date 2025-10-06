@@ -1,13 +1,21 @@
-import { Button} from "react-bootstrap";
+import { Form, InputGroup, FormControl, Button } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa6";
-
-import { FormControl, InputGroup } from "react-bootstrap";
 import { AiOutlineSearch } from "react-icons/ai";
+
 export default function AssignmentControl(){
     return(
         <div className="row align-items-center">
             <div className="col">
-                <FormControl type="search" placeholder="Search..."className="mb-2 w-50"/>
+                <FormControl type="text" placeholder="Search..."className="mb-2 w-50  " />
+                {/* 
+                 <Form>
+                  <InputGroup>
+                  <InputGroup.Text>
+                    <AiOutlineSearch />
+                  </InputGroup.Text>
+                  <FormControl type="text" placeholder="Search..." />
+                  </InputGroup>
+                </Form>*/}
             </div>
             <div className="col">
            
