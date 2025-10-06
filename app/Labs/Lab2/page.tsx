@@ -2,7 +2,7 @@ import "./page.css";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
+import Margins from "./Margins";
 
 import ForegroundColors from "./foregroundColors";
 import BackgroundColors from "./BackgroundColor";
@@ -21,6 +21,7 @@ import BootstrapTables from "./BootstrapTables";
 import BootstrapLists from "./BootstrapList";
 import BootstrapForms from "./BootstrapFroms";
 import BoostrapNavigation from "./BootstrapNavigation";
+import Dimensions from "./Dimensions";
 
 export default function LabsLayout() {
   return (
@@ -76,7 +77,9 @@ This heading has same style as paragraph above
     <BackgroundColors />
     <Boders />
     <Padding />
+    <Margins/>
     <Corners/>
+    <Dimensions/>
     <Position/>
     <Zindex/>
     <Float/>

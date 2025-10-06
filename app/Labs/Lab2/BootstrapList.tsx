@@ -1,6 +1,6 @@
-
-import { ListGroup } from 'react-bootstrap';
+"use client";
 import { ListGroupItem } from 'react-bootstrap';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 export default function BootstrapLists(){
    return(
@@ -15,7 +15,6 @@ export default function BootstrapLists(){
                 <ListGroupItem disabled>Star Wars</ListGroupItem>
             </ListGroup>
         </div>
-        {/*
         <div id="wd-css-hyperlink-list">
             <h3>Favorite books</h3>
             <ListGroup>
@@ -39,7 +38,8 @@ export default function BootstrapLists(){
                 </ListGroupItem>
             </ListGroup>
         </div>
-*/}
+
+       
     </div>
     
     )

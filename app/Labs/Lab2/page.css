@@ -180,5 +180,29 @@ p#wd-id-selector-2 {
   text-align: center;
 }
 
+.wd-margin-bottom {
+  margin-bottom: 50px;
+}
+
+.wd-margin-right-left {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.wd-margin-all-around {
+  margin: 30px;
+}
 
 
+.wd-dimension-portrait {
+   width: 75px;
+   height: 100px;
+}
+.wd-dimension-landscape {
+   width: 100px;
+   height: 75px;
+}
+.wd-dimension-square {
+   width: 75px;
+   height: 75px;
+}
