@@ -17,7 +17,7 @@ export default function Signup() {
       <Link id="wd-signin-btn"
             href="/Account/Profile"
             className="btn btn-primary w-100 mb-2">
-            Sign in </Link>
+            Sign up </Link>
       <Link id="wd-signin-link" href="/Account/Signin">Sign in</Link>
     </div>
 );}
