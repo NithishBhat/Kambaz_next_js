@@ -2,7 +2,7 @@ import Link from "next/link";
 import {Form ,FormControl} from "react-bootstrap";
 export default function Profile() {
   return (
-    <div>
+    <div className="col-5 align-items-center">
       <h1>Profile</h1>
 
       <FormControl id="wd-username"

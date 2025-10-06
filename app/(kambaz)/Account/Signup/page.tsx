@@ -3,7 +3,7 @@ import Link from "next/link";
 import { FormControl} from "react-bootstrap";
 export default function Signup() {
   return (
-    <div>
+    <div className="col-5 align-items-center">
       <h1>Sign up</h1>
       <FormControl id="wd-username"
              placeholder="username"

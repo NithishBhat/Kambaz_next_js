@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FormControl} from "react-bootstrap";
 export default function Signin() {
   return (
-    <div id="wd-signin-screen">
+    <div id="wd-signin-screen" className="col-5 align-items-center">
       <h1>Sign in</h1>
       <FormControl id="wd-username"
              placeholder="username"
