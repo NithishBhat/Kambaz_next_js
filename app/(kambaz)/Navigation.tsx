@@ -22,7 +22,7 @@ export default function KambazNavigation() {
        </Link>
       </ListGroupItem>
 
-      <ListGroupItem className="border-0 bg-black text-center">
+      <ListGroupItem className="border-0 bg-white text-center ">
        <Link href="/Dashboard" id="wd-dashboard-link" className="text-danger text-decoration-none">
          <AiOutlineDashboard className="fs-1 text-danger" />
          <br />
@@ -31,7 +31,7 @@ export default function KambazNavigation() {
       </ListGroupItem>
 
       <ListGroupItem className="border-0 bg-black text-center">
-       <Link href="/Dashboard" id="wd-courses" className="text-danger text-decoration-none">
+       <Link href="/Dashboard" id="wd-courses" className="text-white text-decoration-none">
          <LiaCogSolid className="fs-1 text-danger" />
          <br />
 
@@ -40,7 +40,7 @@ export default function KambazNavigation() {
       </ListGroupItem>
 
       <ListGroupItem className="border-0 bg-black text-center">
-       <Link href="/Calendar" id="wd-calendar-link" className="text-danger text-decoration-none">
+       <Link href="/Calendar" id="wd-calendar-link" className="text-white text-decoration-none">
          <IoCalendarOutline className="fs-1 text-danger" />
          <br />
 
@@ -49,19 +49,18 @@ export default function KambazNavigation() {
       </ListGroupItem>
      
       <ListGroupItem className="border-0 bg-black text-center">
-       <Link href="/Inbox" id="wd-inbox-link" className="text-danger text-decoration-none">
-       <br />
-
+       <Link href="/Inbox" id="wd-inbox-link" className="text-white text-decoration-none">
          <FaInbox className="fs-1 text-danger" />
-
+        <br />
         Inbox 
        </Link>
       </ListGroupItem>
 
-      <ListGroupItem className="border-0 bg-white text-center">
-       <Link href="/Labs" id="wd-labs-link" className="text-danger text-decoration-none">
-       <br />
+      <ListGroupItem className="border-0 bg-black text-center">
+       <Link href="/Labs" id="wd-labs-link" className="text-white text-decoration-none">
+    
          <LiaBookSolid className="fs-1 text-danger" />
+            <br />
          Labs
        </Link>
       </ListGroupItem>

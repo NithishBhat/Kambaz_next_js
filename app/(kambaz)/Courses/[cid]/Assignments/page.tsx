@@ -1,43 +1,111 @@
 
 import Link from "next/link";
+import { FaAngleDown } from 'react-icons/fa';
+import ModulesControls from "../Modules/ModulesControls";
+import ModuleControlButton from "../Modules/ModulesControlButton";
+import LessonControlButtons from "../Modules/LessonControlButtons";
+import { BsGripVertical } from "react-icons/bs";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "react-bootstrap";
+import { FaPlus } from "react-icons/fa6";
+import AssignmentControl from "./AssignmentControl";
+import AssignmentNav from "./AssignmentNav";
+import { FaEdit } from 'react-icons/fa';
+import { ListGroup, ListGroupItem } from "react-bootstrap";
+import { Span } from "next/dist/trace";
 export default function Assignments() {
   return (
-    <div id="wd-assignments">
-      <input placeholder="Search for Assignments"
-             id="wd-search-assignment" /> <button id="wd-add-assignment-group">+ Group</button> <button id="wd-add-assignment">+ Assignment</button>
+    <div id="wd-assignments" >
+      <AssignmentControl/><br /><br /><br />
       
-      
-      <h3 id="wd-assignments-title">
-        ASSIGNMENTS 40% of Total <button>+</button> </h3>
-      <ul id="wd-assignment-list">
-        <li className="wd-assignment-list-item">
-          <Link href="/Courses/1234/Assignments/123"
-             className="wd-assignment-link" >
-            A1 - CSS + HTML
-          </Link>
-          <br/>
-          Mutliple Modules | <strong>Not Available Until</strong> May 6 at 12:00am | <br/>
-          <strong> Due</strong> May 7 at 12:00am | 100 pts
-        </li>
-          <li className="wd-assignment-list-item">
-          <Link href="/Courses/1234/Assignments/123"
-             className="wd-assignment-link" >
-            A2 - ENV + HTML
-          </Link> 
-          <br/>
-          Mutliple Modules | <strong>Not Available Until</strong> May 6 at 12:00am | <br/>
-          <strong> Due</strong> May 7 at 12:00am | 100 pts
-          </li>
-            <li className="wd-assignment-list-item">
-            <Link href="/Courses/1234/Assignments/123"
-              className="wd-assignment-link" >
-              A3 - REACT + HTML
-            </Link> 
-            <br/>
-            Mutliple Modules | <strong>Not Available Until</strong> May 6 at 12:00am | <br/>
-            <strong> Due</strong> May 7 at 12:00am | 100 pts
-          </li>
-       
-      </ul>
+        <ListGroup className="rounded-0" id="wd-modules">
+          <ListGroupItem className=" p-0  fs-5 border-gray ">
+            <div className="row g-0 p-3  bg-secondary align-items-center"> 
+              <div className="col-auto">
+                <BsGripVertical className="me-2 fs-3" /> 
+              </div>
+              <div className="col-auto">
+                <FaAngleDown className="me-2 fs-3" />
+              </div>
+              <div className="col-8">
+                <span>ASSIGNMENTS</span>
+              </div>
+     
+              <div className="col">
+              <AssignmentNav/>
+              </div>
+            </div>
+            <ListGroup className="wd-lessons rounded-0 ">
+              <ListGroupItem className="wd-lesson p-3 ps-1 ">
+              <div className="row align-items-center g-0">
+                <div className="col-auto">
+                  <BsGripVertical className="me-2 fs-3" />  
+                </div>
+                <div className="col-1">
+                  <FaEdit className="me-2 fs-3 text-success" />
+                </div>
+                  <div className="col-6">
+                    <Link href="/Courses/1234/Assignments/123"
+                    className="wd-assignment-link text-decoration-none text-dark fw-bold" >
+                    A1
+                    </Link>
+                    <br/>
+                    <span className="text-danger"> Mutliple Modules </span> | <strong>Not Available Until</strong> May 6 at 12:00am | <br/>
+                    <strong> Due</strong> May 7 at 12:00am | 100 pts
+                  </div>
+                  <div className="col">
+                    <LessonControlButtons />
+                  </div>
+                </div>
+              </ListGroupItem>
+               <ListGroupItem className="wd-lesson p-3 ps-1 ">
+              <div className="row align-items-center g-0">
+                <div className="col-auto">
+                  <BsGripVertical className="me-2 fs-3" />  
+                </div>
+                <div className="col-1">
+                  <FaEdit className="me-2 fs-3 text-success" />
+                </div>
+                  <div className="col-6">
+                    <Link href="/Courses/1234/Assignments/123"
+                    className="wd-assignment-link text-decoration-none text-dark fw-bold" >
+                    A2
+                    </Link>
+                    <br/>
+                    <span className="text-danger"> Mutliple Modules </span> | <strong>Not Available Until</strong> May 6 at 12:00am | <br/>
+                    <strong> Due</strong> May 7 at 12:00am | 100 pts
+                  </div>
+                  <div className="col">
+                    <LessonControlButtons />
+                  </div>
+                </div>
+              </ListGroupItem>
+               <ListGroupItem className="wd-lesson p-3 ps-1 ">
+              <div className="row align-items-center g-0">
+                <div className="col-auto">
+                  <BsGripVertical className="me-2 fs-3" />  
+                </div>
+                <div className="col-1">
+                  <FaEdit className="me-2 fs-3 text-success" />
+                </div>
+                  <div className="col-6">
+                    <Link href="/Courses/1234/Assignments/123"
+                    className="wd-assignment-link text-decoration-none text-dark fw-bold" >
+                    A3
+                    </Link>
+                    <br/>
+                    <span className="text-danger"> Mutliple Modules </span> | <strong>Not Available Until</strong> May 6 at 12:00am | <br/>
+                    <strong> Due</strong> May 7 at 12:00am | 100 pts
+                  </div>
+                  <div className="col">
+                    <LessonControlButtons />
+                  </div>
+                </div>
+              </ListGroupItem>
+            </ListGroup>
+            </ListGroupItem>
+            
+          
+      </ListGroup>
+    
     </div>
 );}

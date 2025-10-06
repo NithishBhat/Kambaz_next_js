@@ -1,111 +1,101 @@
+import { FormControl} from "react-bootstrap";
+import { Table } from "react-bootstrap";
+import Form from 'react-bootstrap/Form';
+import {  Row, Col } from "react-bootstrap";
+
 export default function AssignmentEditor() {
   return (
+    <Form>
     <div id="wd-assignments-editor">
-      <form>
-        <label htmlFor="wd-name"><h3>Assignment Name</h3></label>
-        <input id="wd-name" defaultValue="A1 - ENV + HTML" /><br /><br />
-        <textarea id="wd-description" cols={80} rows={10}>
-          The assignment is available online Submit a link to the landing page of
-        </textarea>
-        <br />
-        <br />
-        <table>
-          <tr>
-            <td align="center" valign="top">
-              <label htmlFor="wd-points">Points</label>
-            </td>
-            <td>
-              <input id="wd-points" defaultValue={100} />
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-group"> Favorite movie genre: </label><br/>
-            </td>
-            <td>
-              <select id="wd-group" defaultValue="ASSIGNMENTS">
-              <option value="COMEDY">ASSIGNMENTS</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-display-grade-as"> Dispay Grade as: </label><br/>
-            </td>
-            <td>
-              <select id="wd-display-grade-as" defaultValue="SCIFI">
-              <option value="COMEDY">percentage</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-submission-type"> Submistion type: </label><br/>
-            </td>
-            <td>
-              <select id="wd-submission-type" defaultValue="SCIFI">
-              <option value="COMEDY">Online</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <label>Online Entry Options</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-text-entry"/>
-            <label htmlFor="wd-text-entry">Text Entry</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-website-url"/>
-            <label htmlFor="wd-website-url">Web URL</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-media-recordings"/>
-            <label htmlFor="wd-media-recordings">Media recordings</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-student-annotation"/>
-            <label htmlFor="wd-student-annotation">Student annotation</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-file-upload"/>
-            <label htmlFor="wd-file-upload">File uploads</label><br/>
-          </tr>
-          <br />
-          <tr>
-            <td>
-              <label htmlFor="wd-assign-to">Assign to</label><br/>
-              <input id="wd-assign-to" defaultValue="Everyone" />
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <label htmlFor="wd-due-date"> Due</label><br/>
-            <input type="date"
-                  defaultValue="2000-01-21"
-                  id="wd-due-date"/>
-
-          </tr>
-          <br />
-          <tr>
-            <td>
-              <label htmlFor="wd-available-from"> Available From</label><br/>
-              <input type="date"
-                    defaultValue="2000-01-21"
-                    id="wd-available-from"/>
-            </td>
-            <td>
-              <label htmlFor="wd-available-unti"> Until </label><br/>
-              <input type="date"
-                    defaultValue="2000-01-21"
-                    id="wd-available-unti"/>
-            </td>
-          </tr><br />
-        </table>
-        <hr />
-        <button > Cancel</button> <button> Save</button> 
-      </form>
+      
+      <label htmlFor="wd-name"><h3>Assignment Name</h3></label>
+      <FormControl id="wd-name" placeholder="A1" className="mb-2"/>
+      <FormControl id="wd-name" placeholder="The assignment is available online Submit a link to the landing page of
+      The assignment is available online Submit a link to the landing page of
+      The assignment is available online Submit a link to the landing page of
+      The assignment is available online Submit a link to the landing page of"
+       className="mb-2" as="textarea" cols={80} rows={10}/>
+      <div className="container text-end">
+  <div className="row mb-3">
+    <label htmlFor="wd-points" className="col-sm-3 col-form-label">Points</label>
+    <div className="col-sm-9">
+      <FormControl id="wd-points" placeholder="100" />
     </div>
+  </div>
+
+  <div className="row mb-3">
+    <label htmlFor="wd-group" className="col-sm-3 col-form-label">Assignment Group</label>
+    <div className="col-sm-9">
+      <Form.Select id="wd-group"  defaultValue="ASSIGNMENT">
+        <option>ASSIGNMENT</option>
+        <option>QUIZ</option>
+        <option>EXAM</option>
+      </Form.Select>
+    </div>
+  </div>
+
+  <div className="row mb-3">
+    <label htmlFor="wd-display" className="col-sm-3 col-form-label">Display Grade as</label>
+    <div className="col-sm-9">
+      <Form.Select id="wd-display"  defaultValue="Percentage">
+        <option>Percentage</option>
+        <option>Complete/Incomplete</option>
+        <option>Points</option>
+      </Form.Select>
+    </div>
+  </div>
+
+  <div className="row mb-3">
+    <label className="col-sm-3 col-form-label">Submission Type</label>
+    <div className="col-sm-9">
+      <div className="border p-3 text-start" >
+        <Form.Select  className="mb-3" defaultValue="Online">
+          <option>Online</option>
+          <option>On Paper</option>
+          <option>External Tool</option>
+        </Form.Select>
+        
+        <label className="mb-2 fw-bold">Online Entry Options</label>
+        <Form.Check label="Text Entry" className="mb-2" />
+        <Form.Check label="Website URL" className="mb-2" />
+        <Form.Check label="Media Recordings" className="mb-2" />
+        <Form.Check label="Student Annotation" className="mb-2" />
+        <Form.Check label="File Uploads" />
+      </div>
+      
+      </div>
+      </div>
+       <div className="row mb-3 ">
+    <label className="col-sm-3 col-form-label">Assign</label>
+    <div className="col-sm-9 text-start">
+      <div className="border p-3">
+       
+        <label className="mb-2 fw-bold">Assign to</label>
+         <Form.Select as="select" className="mb-3" defaultValue="Online">
+          <option>EveryOne</option>
+          <option>On Paper</option>
+          <option>External Tool</option>
+        </Form.Select>
+        <label className="mb-2 fw-bold">Due</label>
+        <Form.Control type="date" className="mb-3" />
+        <div className="row mb-3">
+        <div className="col">
+          <label className="mb-2 fw-bold">Available From</label>
+          <Form.Control type="date" />
+        </div>
+
+        <div className="col">
+          <label className="mb-2 fw-bold">Until</label>
+          <Form.Control type="date" />
+        </div>
+      </div>
+      </div>
+      
+      </div>
+      </div>
+</div>
+
+
+    </div>
+    </Form>
 );}
