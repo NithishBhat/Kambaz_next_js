@@ -30,7 +30,7 @@ export default function Profile() {
         <option value="STUDENT">Student</option>
       </Form.Select>
       <Link id="wd-signout-btn"
-            href="/Account/signin"
+            href="/Account/Signin"
             className="btn btn-danger w-100 mb-2 ">
             Signout </Link>
 
