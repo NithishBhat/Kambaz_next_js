@@ -15,7 +15,8 @@ import { Span } from "next/dist/trace";
 export default function Assignments() {
   return (
     <div id="wd-assignments" >
-      <AssignmentControl/><br /><br /><br />
+      <AssignmentControl/>
+      <br /><br /><br />
       
         <ListGroup className="rounded-0" id="wd-modules">
           <ListGroupItem className=" p-0  fs-5 border-gray ">

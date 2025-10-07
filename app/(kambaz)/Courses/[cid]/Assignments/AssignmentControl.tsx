@@ -1,20 +1,18 @@
 import { Form, InputGroup, FormControl, Button } from "react-bootstrap";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus} from "react-icons/fa6";
+import { FaSearch } from 'react-icons/fa';
 import { AiOutlineSearch } from "react-icons/ai";
 import InputGroupText from "react-bootstrap/InputGroup";
 
 export default function AssignmentControl(){
     return(
-        <div className="row ">
-            <div className="col-auto align-items-center">
-
-                  <InputGroup>
-                  <InputGroupText>
-                    <AiOutlineSearch className="position-relative me-2"  style={{ bottom: "1px" }} />
-                  </InputGroupText>
-                  <FormControl type="text" placeholder="Search..." />
-                  </InputGroup>
-                  
+        <div className="row align-items-center g-0">
+            
+             <div className="col-auto">
+                <FaSearch/> 
+            </div>
+            <div className="col border border-start-0">
+             <FormControl type="search" placeholder="Search..." />
             </div>
             <div className="col">
            
