@@ -9,10 +9,10 @@ export default function AssignmentControl(){
         <div className="row align-items-center g-0">
             
              <div className="col-auto">
-                <FaSearch/> 
+                <FaSearch size={38} className="p-1 border border-end-0 rounded "/> 
             </div>
-            <div className="col border border-start-0">
-             <FormControl type="search" placeholder="Search..." />
+            <div className="col ">
+             <FormControl type="search" placeholder="Search..." className=" border border-start-0" />
             </div>
             <div className="col">
            
