@@ -28,7 +28,7 @@ import DestructingImports from "./DestructingImports";
 import Classes from "./Classes";
 import Styles from "./styles";
 import PathParameters from "./PathParameters";
-import TodoItem from "./ToDoItem";
+import TodoItem from "./todos/TodoItem";
 import TodoList from "./todos/TodoList";
 
 
