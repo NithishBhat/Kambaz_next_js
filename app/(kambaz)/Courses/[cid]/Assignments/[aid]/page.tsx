@@ -14,7 +14,6 @@ export default function AssignmentEditor() {
   return (
     <Form>
     <div id="wd-assignments-editor">
-      
       <label htmlFor="wd-name"><h3>Assignment Name</h3></label>
       <FormControl id="wd-name" placeholder="A1" className="mb-2" value={assignments[0].title}/>
       <FormControl id="wd-name" placeholder="The assignment is available online Submit a link to the landing page of
@@ -104,7 +103,7 @@ export default function AssignmentEditor() {
       <hr/>
       <div className="Row">
               <Button className="btn btn-secondary w-2 mb-2 me-2" href={`/Courses/${cid}/Assignments`}>Cancel</Button>
-              <Button className="btn btn-danger w-2 mb-2 me-2" type="submit">Save</Button>
+              <Button className="btn btn-danger w-2 mb-2 me-2" href={`/Courses/${cid}/Assignments`} type="submit">Save</Button>
       </div>
 </div>
 
