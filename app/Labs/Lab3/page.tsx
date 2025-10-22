@@ -30,6 +30,7 @@ import Styles from "./styles";
 import PathParameters from "./PathParameters";
 import TodoItem from "./todos/TodoItem";
 import TodoList from "./todos/TodoList";
+import VariableTypes from "./VariableTypes";
 
 
 export default function Lab3() {
@@ -38,6 +39,7 @@ export default function Lab3() {
     <div id="wd-lab3" className="container">
       <h3>Lab 3</h3>
       <VariablesAndConstants/>
+      <VariableTypes/>
       <BooleanVariables/>
       <IfElse/>
       <TernaryOperator />
