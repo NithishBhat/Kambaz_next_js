@@ -25,7 +25,7 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
           style={{ cursor: "pointer" }}
           onClick={() => setShowNav(!showNav)}
         />
-        {course?.name} <Breadcrumb />
+        {course?.name} <Breadcrumb course={course} />
       </h2>
       <hr />
 
