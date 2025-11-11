@@ -16,8 +16,11 @@ export default function TOC() {
        <NavLink href="/Labs/Lab3" as={Link}>Lab 3</NavLink>
      </NavItem>
      <NavItem>
-       <NavLink href="/" as={Link}>Kambaz</NavLink>
-     </NavItem>
+      <NavLink href="/Labs/Lab4" as={Link} className={`nav-link ${pathname.endsWith("Lab4") ? "active" : ""}`}>
+         Lab 4 </NavLink> </NavItem>
+     <NavItem>
+       <NavLink href="/" as={Link}>
+         Kambaz </NavLink> </NavItem>
      <NavItem>
        <NavLink href="https://github.com/NithishBhat">My GitHub</NavLink>
      </NavItem>
