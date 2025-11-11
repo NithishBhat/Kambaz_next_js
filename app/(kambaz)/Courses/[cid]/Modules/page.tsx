@@ -1,13 +1,8 @@
-<<<<<<< Updated upstream
-import { ListGroup, ListGroupItem } from "react-bootstrap";
-import ModulesControls from "./ModulesControls";
-=======
 "use client";
 import { useParams } from "next/navigation";
 import { ListGroup, ListGroupItem, FormControl } from "react-bootstrap";
 import ModulesControls from "./ModulesControls";
 import ModulesControlButton from "./ModulesControlButton";
->>>>>>> Stashed changes
 import LessonControlButtons from "./LessonControlButtons";
 import { BsGripVertical } from "react-icons/bs";
 import { useState } from "react";
@@ -18,40 +13,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../store";
 
 export default function Modules() {
-<<<<<<< Updated upstream
-  return (
-    <div>
-       <ModulesControls /><br /><br /><br /><br />
-  <ListGroup className="rounded-0" id="wd-modules">
-    <ListGroupItem className="wd-module p-0 mb-5 fs-5 border-gray">
-      <BsGripVertical className="me-2 fs-3" /> Week 1 <ModulesControls/>
-      <ListGroup className="wd-lessons rounded-0">
-        <ListGroupItem className="wd-lesson p-3 ps-1">
-          <BsGripVertical className="me-2 fs-3" /> LEARNING OBJECTIVES <LessonControlButtons />
-        </ListGroupItem>
-        <ListGroupItem className="wd-lesson p-3 ps-1">
-          <BsGripVertical className="me-2 fs-3" /> Introduction to the course <LessonControlButtons /> 
-          </ListGroupItem>
-        <ListGroupItem className="wd-lesson p-3 ps-1">
-          Learn what is Web Development 
-          </ListGroupItem>
-      </ListGroup>
-    </ListGroupItem>
-    <ListGroupItem className="wd-module p-0 mb-5 fs-5 border-gray">
-      <div className="wd-title p-3 ps-2 bg-secondary"> Week 2 </div>
-      <ListGroup className="wd-lessons rounded-0">
-        <ListGroupItem className="wd-lesson p-3 ps-1">
-          LESSON 1 </ListGroupItem>
-        <ListGroupItem className="wd-lesson p-3 ps-1">
-          LESSON 2 </ListGroupItem>
-      </ListGroup>
-    </ListGroupItem>
-  </ListGroup>
-
-    </div>
-);}
-
-=======
   const { cid } = useParams();
 
   // 2. Get modules from Redux store and initialize dispatch
@@ -130,4 +91,3 @@ export default function Modules() {
     </div>
   );
 }
->>>>>>> Stashed changes
