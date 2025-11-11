@@ -41,9 +41,6 @@ export default function ModulesControls({ moduleName, setModuleName, addModule }
              labels Unpublish all modules and items and Unpublish modules only */}
        </DropdownMenu>
      </Dropdown>
-<<<<<<< Updated upstream
-     {/* Implement the View Progress and Collapse All buttons with IDs wd-view-progress and wd-collapse-all */}
-=======
      <Button variant="secondary" size="lg" className="me-1 float-end" id="wd-view-progress" >
       View progress
      </Button>
@@ -53,6 +50,5 @@ export default function ModulesControls({ moduleName, setModuleName, addModule }
      <ModuleEditor show={show} handleClose={handleClose} dialogTitle="Add Module"
        moduleName={moduleName} setModuleName={setModuleName} addModule={addModule} />
 
->>>>>>> Stashed changes
    </div>
 );}
