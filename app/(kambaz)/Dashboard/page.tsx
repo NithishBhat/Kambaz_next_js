@@ -4,7 +4,7 @@ import { Card, CardBody, CardTitle, CardText, CardImg, Row, Col, Button,FormCont
 import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewCourse, deleteCourse, updateCourse, setCourses } from "../Courses/reducer";
+import setCourses, { addNewCourse, deleteCourse, updateCourse } from "../Courses/reducer";
 import { RootState } from "../store";
 import * as db from "../Database";
 
