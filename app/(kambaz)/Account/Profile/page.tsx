@@ -1,6 +1,8 @@
 import Link from "next/link";
+import * as client from "../client";
 import {Form ,FormControl} from "react-bootstrap";
 export default function Profile() {
+       
   return (
     <div className="col-5 align-items-center">
       <h1>Profile</h1>

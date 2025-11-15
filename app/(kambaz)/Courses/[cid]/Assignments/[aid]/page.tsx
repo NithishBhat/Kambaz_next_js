@@ -1,111 +1,81 @@
-export default function AssignmentEditor() {
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Assignment } from "../../reducer"; // Adjust path
+
+// Assume state and dispatch are passed via Context or props
+// This component would be wrapped by a provider in a real app
+export default function AssignmentEditor({ state, dispatch }: any) {
+  const router = useRouter();
+  const { aid } = useParams(); // Gets the [aid] from the URL
+  const isCreating = aid === "new";
+
+  const [formData, setFormData] = useState<Partial<Assignment>>({
+    title: "New Assignment",
+    points: 100,
+    // ... other defaults
+  });
+
+  // Effect to load assignment data if we are editing
+  useEffect(() => {
+    if (!isCreating && aid) {
+      const assignment = state.assignments.find((a: Assignment) => a.id === aid);
+      if (assignment) {
+        setFormData(assignment);
+      }
+    }
+  }, [aid, isCreating, state.assignments]);
+
+  const handleChange = (e: any) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    if (isCreating) {
+      dispatch({
+        type: "ADD_ASSIGNMENT",
+        payload: { ...formData, id: new Date().getTime().toString() }, // Create new ID
+      });
+    } else {
+      dispatch({ type: "UPDATE_ASSIGNMENT", payload: formData });
+    }
+    router.push("/Courses/1234/Assignments"); // Navigate back to list
+  };
+
+  // If a student tries to access this page, block them.
+  // const userRole = useUserRole();
+  // if (userRole === "student") {
+  //   router.push("/Courses/1234/Assignments");
+  //   return null;
+  // }
+
   return (
     <div id="wd-assignments-editor">
-      <form>
-        <label htmlFor="wd-name"><h3>Assignment Name</h3></label>
-        <input id="wd-name" defaultValue="A1 - ENV + HTML" /><br /><br />
-        <textarea id="wd-description" cols={80} rows={10}>
-          The assignment is available online Submit a link to the landing page of
-        </textarea>
-        <br />
-        <br />
-        <table>
-          <tr>
-            <td align="center" valign="top">
-              <label htmlFor="wd-points">Points</label>
-            </td>
-            <td>
-              <input id="wd-points" defaultValue={100} />
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-group"> Favorite movie genre: </label><br/>
-            </td>
-            <td>
-              <select id="wd-group" defaultValue="ASSIGNMENTS">
-              <option value="COMEDY">ASSIGNMENTS</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-display-grade-as"> Dispay Grade as: </label><br/>
-            </td>
-            <td>
-              <select id="wd-display-grade-as" defaultValue="SCIFI">
-              <option value="COMEDY">percentage</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-submission-type"> Submistion type: </label><br/>
-            </td>
-            <td>
-              <select id="wd-submission-type" defaultValue="SCIFI">
-              <option value="COMEDY">Online</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <label>Online Entry Options</label><br/>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="wd-name">
+          <h3>Assignment Name</h3>
+        </label>
+        <input
+          id="wd-name"
+          name="title"
+          value={formData.title || ""}
+          onChange={handleChange}
+        />
+        {/* ... your other form fields (points, textarea, etc.) ... */}
+        {/* <label htmlFor="wd-points">Points</label>
+        <input
+          id="wd-points"
+          name="points"
+          value={formData.points || 100}
+          onChange={handleChange}
+        /> */}
 
-            <input type="checkbox" name="check-genre" id="wd-text-entry"/>
-            <label htmlFor="wd-text-entry">Text Entry</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-website-url"/>
-            <label htmlFor="wd-website-url">Web URL</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-media-recordings"/>
-            <label htmlFor="wd-media-recordings">Media recordings</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-student-annotation"/>
-            <label htmlFor="wd-student-annotation">Student annotation</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-file-upload"/>
-            <label htmlFor="wd-file-upload">File uploads</label><br/>
-          </tr>
-          <br />
-          <tr>
-            <td>
-              <label htmlFor="wd-assign-to">Assign to</label><br/>
-              <input id="wd-assign-to" defaultValue="Everyone" />
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <label htmlFor="wd-due-date"> Due</label><br/>
-            <input type="date"
-                  defaultValue="2000-01-21"
-                  id="wd-due-date"/>
-
-          </tr>
-          <br />
-          <tr>
-            <td>
-              <label htmlFor="wd-available-from"> Available From</label><br/>
-              <input type="date"
-                    defaultValue="2000-01-21"
-                    id="wd-available-from"/>
-            </td>
-            <td>
-              <label htmlFor="wd-available-unti"> Until </label><br/>
-              <input type="date"
-                    defaultValue="2000-01-21"
-                    id="wd-available-unti"/>
-            </td>
-          </tr><br />
-        </table>
         <hr />
-        <button > Cancel</button> <button> Save</button> 
+        <button type="button" onClick={() => router.push("/Courses/1234/Assignments")}>
+          Cancel
+        </button>
+        <button type="submit">Save</button>
       </form>
     </div>
-);}
+  );
+}
