@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+const API_BASE = process.env.NEXT_PUBLIC_HTTP_SERVER || "http://localhost:4000";
 const USERS_API = `${API_BASE}/api/users`;
 const ENROLLMENTS_API = `${API_BASE}/api/enrollments`;
 

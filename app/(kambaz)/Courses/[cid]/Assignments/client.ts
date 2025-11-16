@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Make sure your .env.local file has NEXT_PUBLIC_API_BASE=http://localhost:4000
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+const API_BASE = process.env.NEXT_PUBLIC_HTTP_SERVER || "http://localhost:4000";
 const ASSIGNMENTS_API = `${API_BASE}/api/assignments`;
 const COURSES_API = `${API_BASE}/api/courses`;
 
