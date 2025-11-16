@@ -27,7 +27,7 @@ export default function PeopleTable() {
     (state: RootState) => state.usersReducer
   );
 
-  const isFaculty = currentUser?.role === "FACULTY";
+ const isFaculty = (currentUser as any)?.role === "FACULTY";
 
   // Fetch users on load
   useEffect(() => {
