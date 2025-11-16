@@ -88,7 +88,14 @@ export default function Dashboard() {
     }
   };
 
+// This is the NEW corrected code
   const handleUnenroll = async (courseId: string) => {
+    // Add this check
+    if (!currentUser) {
+      console.error("Cannot unenroll: no user logged in.");
+      return;
+    }
+    
     try {
       // Call server API first
       await enrollmentClient.unenrollUser(currentUser._id, courseId);
