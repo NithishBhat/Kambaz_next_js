@@ -4,8 +4,8 @@ import * as client from "./client";
 
 // 1. Initial state is now empty
 const initialState = {
-  enrollments: [],
-  status: "idle", // To track loading status
+  enrollments: [] as any[], // <--- Add 'as any[]' here
+  status: "idle",
 };
 
 // 2. Create thunk to fetch enrollments for a user
