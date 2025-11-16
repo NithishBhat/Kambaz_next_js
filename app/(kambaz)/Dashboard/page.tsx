@@ -106,7 +106,7 @@ export default function Dashboard() {
     }
   };
 
-  const isFaculty = currentUser?.role === "FACULTY";
+  const isFaculty = (currentUser as any)?.role === "FACULTY";
 
   // --- JSX (no changes) ---
   return (
