@@ -4,7 +4,7 @@ import * as client from "./client"; // Import the new client
 
 // 1. Define the initial state (now empty)
 const initialState = {
-  assignments: [],
+assignments: [] as any[],
   assignment: {
     title: "New Assignment",
     description: "New Assignment Description",
