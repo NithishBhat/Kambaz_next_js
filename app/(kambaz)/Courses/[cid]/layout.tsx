@@ -1,25 +1,62 @@
 "use client";
-import { ReactNode, useState } from "react"; // Import useState
+import { ReactNode, useState, useEffect } from "react";
 import { FaAlignJustify } from "react-icons/fa6";
 import CourseNavigation from "./Navigation";
 import Breadcrumb from "./Breadcrumb";
 
 import { useSelector } from "react-redux";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { RootState } from "../../store";
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { cid } = useParams();
+  const router = useRouter();
+
+  // --- State from Redux ---
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
   const course = courses.find((course: any) => course._id === cid);
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
+  const { enrollments } = useSelector(
+    (state: RootState) => state.enrollmentsReducer
+  );
 
-  // Add state for navigation visibility
+  // --- Local UI State ---
   const [showNav, setShowNav] = useState(true);
 
+  // --- Enrollment Protection Logic (Corrected) ---
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/Dashboard");
+      return;
+    }
+
+    const enrolled = enrollments.some(
+      (e: any) => e.user === currentUser._id && e.course === cid // Corrected
+    );
+
+    if (!enrolled) {
+      alert("You are not enrolled in this course.");
+      router.push("/Dashboard");
+    } else {
+      setIsEnrolled(true);
+    }
+    setIsLoading(false);
+  }, [cid, currentUser, enrollments, router]);
+
+  // Don't render anything until the check is complete and successful
+  if (isLoading || !isEnrolled) {
+    return null;
+  }
+
+  // --- Original Render Logic ---
   return (
     <div id="wd-courses">
       <h2 className="text-danger">
-        {/* Add onClick to toggle the state */}
         <FaAlignJustify
           className="me-4 fs-4 mb-1"
           style={{ cursor: "pointer" }}
@@ -30,7 +67,6 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
       <hr />
 
       <div className="d-flex">
-        {/* Conditionally render the navigation based on state */}
         {showNav && (
           <div>
             <CourseNavigation cid={cid} />

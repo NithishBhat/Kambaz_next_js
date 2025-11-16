@@ -1,111 +1,175 @@
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../store";
+import { Button, Form } from "react-bootstrap";
+
+// Import new client and async actions
+import * as client from "../client";
+import {
+  addAssignment,
+  updateAssignment,
+  fetchAssignmentsForCourse,
+} from "../reducer";
+
 export default function AssignmentEditor() {
+  const { cid, aid } = useParams();
+  const router = useRouter();
+  const dispatch = useDispatch<any>();
+
+  // --- Data Fetching ---
+  const assignments = useSelector(
+    (state: RootState) => state.assignmentsReducer.assignments
+  );
+  const status = useSelector(
+    (state: RootState) => state.assignmentsReducer.status
+  );
+  const assignmentToEdit = assignments.find((a: any) => a._id === aid);
+
+  // 1. Fetch assignments if not already loaded (e.g., on page refresh)
+  useEffect(() => {
+    if (status === 'idle' && cid) {
+      dispatch(fetchAssignmentsForCourse(cid as string));
+    }
+  }, [status, cid, dispatch]);
+
+  // --- Form State ---
+  const defaultAssignmentState = {
+    _id: "",
+    title: "New Assignment",
+    description: "New Assignment Description",
+    points: 100,
+    dueDate: "2025-12-31",
+    availableFromDate: "2025-01-01",
+    availableUntilDate: "2025-12-31",
+    course: cid,
+  };
+
+  const [assignment, setAssignment] = useState(defaultAssignmentState);
+
+  // 2. Populate form once data is loaded
+  useEffect(() => {
+    if (aid !== "new" && assignmentToEdit) {
+      setAssignment({
+        ...defaultAssignmentState,
+        ...assignmentToEdit,
+      });
+    } else {
+      setAssignment({ ...defaultAssignmentState, course: cid as string });
+    }
+  }, [aid, assignmentToEdit, cid]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setAssignment((prev) => ({ ...prev, [id]: value }));
+  };
+
+  // 3. Update handleSave to call client API first
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (aid === "new") {
+        const newAssignment = await client.createAssignment(cid as string, assignment);
+        dispatch(addAssignment(newAssignment)); // Update Redux
+      } else {
+        const updatedAssignment = await client.updateAssignment(assignment);
+        dispatch(updateAssignment(updatedAssignment)); // Update Redux
+      }
+      router.push(`/Courses/${cid}/Assignments`); // Navigate back
+    } catch (err) {
+      console.error("Failed to save assignment", err);
+    }
+  };
+
+  const handleCancel = () => {
+    router.push(`/Courses/${cid}/Assignments`);
+  };
+
+  // --- JSX (no changes) ---
   return (
     <div id="wd-assignments-editor">
-      <form>
-        <label htmlFor="wd-name"><h3>Assignment Name</h3></label>
-        <input id="wd-name" defaultValue="A1 - ENV + HTML" /><br /><br />
-        <textarea id="wd-description" cols={80} rows={10}>
-          The assignment is available online Submit a link to the landing page of
-        </textarea>
-        <br />
-        <br />
-        <table>
-          <tr>
-            <td align="center" valign="top">
-              <label htmlFor="wd-points">Points</label>
-            </td>
-            <td>
-              <input id="wd-points" defaultValue={100} />
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-group"> Favorite movie genre: </label><br/>
-            </td>
-            <td>
-              <select id="wd-group" defaultValue="ASSIGNMENTS">
-              <option value="COMEDY">ASSIGNMENTS</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-display-grade-as"> Dispay Grade as: </label><br/>
-            </td>
-            <td>
-              <select id="wd-display-grade-as" defaultValue="SCIFI">
-              <option value="COMEDY">percentage</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <td align="center" valign="top">
-              <label  htmlFor="wd-submission-type"> Submistion type: </label><br/>
-            </td>
-            <td>
-              <select id="wd-submission-type" defaultValue="SCIFI">
-              <option value="COMEDY">Online</option>
-              <option value="DRAMA">Drama</option>
-            </select>
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <label>Online Entry Options</label><br/>
+      <Form onSubmit={handleSave}>
+        <Form.Group className="mb-3">
+          <Form.Label htmlFor="title">
+            <h3>Assignment Name</h3>
+          </Form.Label>
+          <Form.Control
+            id="title"
+            value={assignment.title}
+            onChange={handleInputChange}
+          />
+        </Form.Group>
 
-            <input type="checkbox" name="check-genre" id="wd-text-entry"/>
-            <label htmlFor="wd-text-entry">Text Entry</label><br/>
+        <Form.Group className="mb-3">
+          <Form.Control
+            as="textarea"
+            id="description"
+            rows={5}
+            value={assignment.description}
+            onChange={handleInputChange}
+          />
+        </Form.Group>
 
-            <input type="checkbox" name="check-genre" id="wd-website-url"/>
-            <label htmlFor="wd-website-url">Web URL</label><br/>
+        <Form.Group className="row mb-3">
+          <Form.Label htmlFor="points" className="col-sm-3 col-form-label text-end">
+            Points
+          </Form.Label>
+          <div className="col-sm-9">
+            <Form.Control
+              type="number"
+              id="points"
+              value={assignment.points}
+              onChange={handleInputChange}
+            />
+          </div>
+        </Form.Group>
 
-            <input type="checkbox" name="check-genre" id="wd-media-recordings"/>
-            <label htmlFor="wd-media-recordings">Media recordings</label><br/>
+        <div className="border rounded p-3 mb-3">
+          <h5>Assign</h5>
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor="dueDate">Due</Form.Label>
+            <Form.Control
+              type="date"
+              id="dueDate"
+              value={assignment.dueDate || ""}
+              onChange={handleInputChange}
+            />
+          </Form.Group>
+          <div className="row">
+            <Form.Group className="col-md-6 mb-3">
+              <Form.Label htmlFor="availableFromDate">Available From</Form.Label>
+              <Form.Control
+                type="date"
+                id="availableFromDate"
+                value={assignment.availableFromDate || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group className="col-md-6 mb-3">
+              <Form.Label htmlFor="availableUntilDate">Until</Form.Label>
+              <Form.Control
+                type="date"
+                id="availableUntilDate"
+                value={assignment.availableUntilDate || ""}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+          </div>
+        </div>
 
-            <input type="checkbox" name="check-genre" id="wd-student-annotation"/>
-            <label htmlFor="wd-student-annotation">Student annotation</label><br/>
-
-            <input type="checkbox" name="check-genre" id="wd-file-upload"/>
-            <label htmlFor="wd-file-upload">File uploads</label><br/>
-          </tr>
-          <br />
-          <tr>
-            <td>
-              <label htmlFor="wd-assign-to">Assign to</label><br/>
-              <input id="wd-assign-to" defaultValue="Everyone" />
-            </td>
-          </tr>
-          <br />
-          <tr>
-            <label htmlFor="wd-due-date"> Due</label><br/>
-            <input type="date"
-                  defaultValue="2000-01-21"
-                  id="wd-due-date"/>
-
-          </tr>
-          <br />
-          <tr>
-            <td>
-              <label htmlFor="wd-available-from"> Available From</label><br/>
-              <input type="date"
-                    defaultValue="2000-01-21"
-                    id="wd-available-from"/>
-            </td>
-            <td>
-              <label htmlFor="wd-available-unti"> Until </label><br/>
-              <input type="date"
-                    defaultValue="2000-01-21"
-                    id="wd-available-unti"/>
-            </td>
-          </tr><br />
-        </table>
         <hr />
-        <button > Cancel</button> <button> Save</button> 
-      </form>
+        <div className="d-flex justify-content-end">
+          <Button variant="secondary" onClick={handleCancel} className="me-2">
+            Cancel
+          </Button>
+          <Button variant="danger" type="submit">
+            Save
+          </Button>
+        </div>
+      </Form>
     </div>
-);}
+  );
+}
