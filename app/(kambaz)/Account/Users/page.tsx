@@ -18,7 +18,7 @@ export default function Users() {
   const router = useRouter();
 
   const fetchUsers = async () => {
-    const users = await client.findAllUsers();
+    const users = await client.findAllUsers(); //heelo
     setUsers(users);
   };
 
