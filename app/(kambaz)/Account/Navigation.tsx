@@ -4,16 +4,32 @@ import { usePathname } from "next/navigation";
 import { Nav, NavItem, NavLink } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
+
 export default function AccountNavigation() {
   const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+  const pathname = usePathname();
+
+  // Define links based on auth state and role
   const links = currentUser ? ["Profile"] : ["Signin", "Signup"];
- const pathname = usePathname();
- return (
-   <Nav variant="pills">
-     {links.map((link) => (
-       <NavItem key={link}>
-         <NavLink as={Link} href={link} active={pathname.endsWith(link.toLowerCase())}>
-           {link} </NavLink> </NavItem>
-     ))}
-   </Nav>
-);}
+  
+  // Add Users link only for ADMIN (Page 218)
+  if (currentUser && currentUser.role === "ADMIN") {
+    links.push("Users");
+  }
+
+  return (
+    <Nav variant="pills" className="flex-column">
+      {links.map((link) => (
+        <NavItem key={link}>
+          <NavLink
+            as={Link}
+            href={`/Account/${link}`}
+            active={pathname.endsWith(link) || pathname.includes(link)}
+          >
+            {link}
+          </NavLink>
+        </NavItem>
+      ))}
+    </Nav>
+  );
+}

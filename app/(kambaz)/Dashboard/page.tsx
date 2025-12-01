@@ -12,103 +12,88 @@ import {
   FormControl,
   CardFooter,
 } from "react-bootstrap";
-import { useState, useEffect } from "react"; // 1. Import useEffect
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addNewCourse,
-  deleteCourse,
-  updateCourse,
-} from "../Courses/reducer";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { RootState } from "../store";
-
-// 2. Import the new client and async actions
+import * as courseClient from "../Courses/client";
 import * as enrollmentClient from "../Enrollments/client";
-import {
-  addEnrollment,
-  removeEnrollment,
-  fetchEnrollmentsForUser,
-} from "../Enrollments/reducer";
 
 export default function Dashboard() {
-  // --- Redux State ---
-  const dispatch = useDispatch<any>(); // 3. Use <any> for dispatching thunks
-  const { courses } = useSelector((state: RootState) => state.coursesReducer);
-  const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
-  );
-  // Get enrollments from Redux store
-  const { enrollments } = useSelector(
-    (state: RootState) => state.enrollmentsReducer
-  );
-
-  // --- Local State ---
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+  
+  // Local state for courses (fetched from server)
+  const [courses, setCourses] = useState<any[]>([]);
   const [course, setCourse] = useState<any>({
     _id: "0",
     name: "New Course",
     number: "New Number",
     startDate: "2023-09-10",
     endDate: "2023-12-15",
-    image: "reactjs.png",
+    image: "reactjs.jpg",
     description: "New Description",
   });
-  const [showAllCourses, setShowAllCourses] =useState(false);
+  const [showAllCourses, setShowAllCourses] = useState(false);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
 
-  // 4. Fetch enrollments when currentUser is available
-  useEffect(() => {
-    if (currentUser) {
-      dispatch(fetchEnrollmentsForUser(currentUser._id));
+  // Fetch Courses and Enrollments from Server
+  const getData = async () => {
+    try {
+      const coursesData = await courseClient.fetchAllCourses();
+      setCourses(coursesData);
+      if (currentUser) {
+        const enrollmentsData = await enrollmentClient.fetchEnrollments(currentUser._id);
+        setEnrollments(enrollmentsData);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  }, [currentUser, dispatch]);
+  };
 
-  // --- Enrollment Logic (no changes needed) ---
-  const userEnrolledCourseIds = enrollments
-    .filter((e: any) => e.user === currentUser?._id)
-    .map((e: any) => e.course);
+  useEffect(() => {
+    getData();
+  }, [currentUser]);
 
+  // Course CRUD Operations
+  const addNewCourse = async () => {
+    const newCourse = await courseClient.createCourse(course);
+    setCourses([...courses, newCourse]);
+  };
+
+  const deleteCourse = async (courseId: string) => {
+    await courseClient.deleteCourse(courseId);
+    setCourses(courses.filter((c) => c._id !== courseId));
+  };
+
+  const updateCourse = async () => {
+    await courseClient.updateCourse(course);
+    setCourses(courses.map((c) => (c._id === course._id ? course : c)));
+  };
+
+  // Enrollment Logic
+  const handleEnroll = async (courseId: string) => {
+    if (!currentUser) return;
+    await enrollmentClient.enrollUser(currentUser._id, courseId);
+    // Refresh data to update UI
+    getData();
+  };
+
+  const handleUnenroll = async (courseId: string) => {
+    if (!currentUser) return;
+    await enrollmentClient.unenrollUser(currentUser._id, courseId);
+    // Refresh data to update UI
+    getData();
+  };
+
+  const isFaculty = currentUser?.role === "FACULTY";
+  
+  // Filter Logic
+  const myEnrollments = enrollments.filter((enrollment) => enrollment.user === currentUser?._id);
+  const myCourseIds = myEnrollments.map((e) => e.course);
+  
   const coursesToDisplay = showAllCourses
     ? courses
-    : courses.filter((c: any) => userEnrolledCourseIds.includes(c._id));
+    : courses.filter((c) => myCourseIds.includes(c._id));
 
-  // --- 5. Refactor Event Handlers to be Async ---
-  const handleEnroll = async (courseId: string) => {
-    if (currentUser) {
-      try {
-        // Call server API first
-        const newEnrollment = await enrollmentClient.enrollUser(
-          currentUser._id,
-          courseId
-        );
-        // Then update Redux state
-        dispatch(addEnrollment(newEnrollment));
-      } catch (err) {
-        console.error("Failed to enroll:", err);
-      }
-    } else {
-      alert("Please sign in to enroll.");
-    }
-  };
-
-// This is the NEW corrected code
-  const handleUnenroll = async (courseId: string) => {
-    // Add this check
-    if (!currentUser) {
-      console.error("Cannot unenroll: no user logged in.");
-      return;
-    }
-    
-    try {
-      // Call server API first
-      await enrollmentClient.unenrollUser(currentUser._id, courseId);
-      // Then update Redux state
-      dispatch(removeEnrollment({ user: currentUser._id, course: courseId }));
-    } catch (err) {
-      console.error("Failed to unenroll:", err);
-    }
-  };
-
-  const isFaculty = (currentUser as any)?.role === "FACULTY";
-
-  // --- JSX (no changes) ---
   return (
     <div id="wd-dashboard">
       <div className="d-flex justify-content-between align-items-center">
@@ -133,13 +118,13 @@ export default function Dashboard() {
             <button
               className="btn btn-primary float-end mb-2"
               id="wd-add-new-course-click"
-              onClick={() => dispatch(addNewCourse(course))}
+              onClick={addNewCourse}
             >
               Add
             </button>
             <button
               className="btn btn-warning float-end me-2"
-              onClick={() => dispatch(updateCourse(course))}
+              onClick={updateCourse}
               id="wd-update-course-click"
             >
               Update
@@ -163,14 +148,13 @@ export default function Dashboard() {
       )}
 
       <h2 id="wd-dashboard-published">
-        {showAllCourses ? "All Courses" : "My Courses"} ({coursesToDisplay.length}
-        )
+        {showAllCourses ? "All Courses" : "My Courses"} ({coursesToDisplay.length})
       </h2>
       <hr />
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
           {coursesToDisplay.map((course: any) => {
-            const isEnrolled = userEnrolledCourseIds.includes(course._id);
+            const isEnrolled = myCourseIds.includes(course._id);
             return (
               <Col
                 key={course._id}
@@ -179,16 +163,14 @@ export default function Dashboard() {
               >
                 <Card>
                   <Link
-                    href={
-                      isEnrolled ? `/Courses/${course._id}/Home` : "/Dashboard"
-                    }
+                    href={isEnrolled ? `/Courses/${course._id}/Home` : "#"}
                     className="wd-dashboard-course-link text-decoration-none text-dark"
                     onClick={(e) => {
                       if (!isEnrolled) e.preventDefault();
                     }}
                   >
                     <CardImg
-                      src={`/images/${course.image}`}
+                      src={`/images/${course.image || "reactjs.jpg"}`} // Fallback image
                       variant="top"
                       width="100%"
                       height={160}
@@ -233,7 +215,7 @@ export default function Dashboard() {
                           Edit
                         </button>
                         <button
-                          onClick={() => dispatch(deleteCourse(course._id))}
+                          onClick={() => deleteCourse(course._id)}
                           className="btn btn-danger"
                           id="wd-delete-course-click"
                         >

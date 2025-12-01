@@ -1,143 +1,66 @@
 "use client";
-import { Table, Button, Form, Col, Row } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "next/navigation";
-import { RootState } from "../../../../store";
-import * as client from "../../../../Users/client"; // Import the client
-import {
-  fetchUsersForCourse,
-  addUser,
-  removeUser,
-  editUser,
-  setUser,
-  resetUser,
-} from "../../../../Users/reducer"; // Import actions
+import * as enrollmentClient from "../../../../Enrollments/client";
+import PeopleDetails from "../Details"; 
 
 export default function PeopleTable() {
   const { cid } = useParams();
-  const dispatch = useDispatch<any>();
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUid, setSelectedUid] = useState<string | null>(null);
 
-  // Get data from Redux
-  const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
-  );
-  const { users, user } = useSelector(
-    (state: RootState) => state.usersReducer
-  );
+  const fetchUsers = async () => {
+    if (!cid) return;
+    try {
+      const users = await enrollmentClient.findUsersForCourse(cid as string);
+      setUsers(users);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
- const isFaculty = (currentUser as any)?.role === "FACULTY";
-
-  // Fetch users on load
   useEffect(() => {
-    if (cid) {
-      dispatch(fetchUsersForCourse(cid as string));
-    }
-  }, [cid, dispatch]);
-
-  // --- Handlers for CRUD ---
-  const handleCreateUser = async () => {
-    try {
-      const newUser = await client.createUser(user);
-      dispatch(addUser(newUser));
-      dispatch(resetUser());
-    } catch (err) {
-      console.error("Failed to create user:", err);
-    }
-  };
-
-  const handleUpdateUser = async () => {
-    try {
-      const updatedUser = await client.updateUser(user);
-      dispatch(editUser(updatedUser));
-      dispatch(resetUser());
-    } catch (err) {
-      console.error("Failed to update user:", err);
-    }
-  };
-
-  const handleDeleteUser = async (uid: string) => {
-    if (window.confirm("Delete this user?")) {
-      try {
-        await client.deleteUser(uid);
-        dispatch(removeUser(uid));
-      } catch (err) {
-        console.error("Failed to delete user:", err);
-      }
-    }
-  };
-
-  // Handler for the form input
-  const setFormUser = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setUser({ ...user, [e.target.id]: e.target.value }));
-  };
+    fetchUsers();
+  }, [cid]);
 
   return (
     <div id="wd-people-table">
-      {/* === FACULTY: ADD/EDIT FORM === */}
-      {isFaculty && (
-        <Row className="mb-4">
-          <h4>{user._id ? "Edit User" : "Add User"}</h4>
-          <Col md={3}>
-            <Form.Control id="username" value={user.username} onChange={setFormUser} placeholder="Username" />
-          </Col>
-          <Col md={3}>
-            <Form.Control id="firstName" value={user.firstName} onChange={setFormUser} placeholder="First Name" />
-          </Col>
-          <Col md={3}>
-            <Form.Control id="lastName" value={user.lastName} onChange={setFormUser} placeholder="Last Name" />
-          </Col>
-          <Col md={3}>
-            <Button onClick={handleCreateUser} variant="success" className="me-2">Add</Button>
-            <Button onClick={handleUpdateUser} variant="warning" className="me-2">Update</Button>
-            <Button onClick={() => dispatch(resetUser())} variant="secondary">Clear</Button>
-          </Col>
-        </Row>
+      {selectedUid && (
+        <PeopleDetails 
+          uid={selectedUid} 
+          onClose={() => { setSelectedUid(null); fetchUsers(); }} 
+        />
       )}
 
-      {/* === PEOPLE TABLE === */}
-      <Table striped>
+      <Table striped hover>
         <thead>
           <tr>
             <th>Name</th>
             <th>Login ID</th>
             <th>Section</th>
             <th>Role</th>
-            {isFaculty && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
-          {users.map((u: any) => (
-            <tr key={u._id}>
+          {/* FIX: Filter out null users (orphaned enrollments) to prevent crash */}
+          {users
+            .filter((usr: any) => usr) 
+            .map((user: any, index: number) => (
+            <tr 
+              key={user._id || user.id || index}
+              onClick={() => setSelectedUid(user._id || user.id)} 
+              style={{ cursor: "pointer" }}
+            >
               <td className="wd-full-name text-nowrap">
                 <FaUserCircle className="me-2 fs-1 text-secondary" />
-                <span className="wd-first-name">{u.firstName}</span>{" "}
-                <span className="wd-last-name">{u.lastName}</span>
+                <span className="wd-first-name">{user.firstName}</span>{" "}
+                <span className="wd-last-name">{user.lastName}</span>
               </td>
-              <td className="wd-login-id">{u.username}</td>
-              <td className="wd-section">S101</td> {/* This is static, update if needed */}
-              <td className="wd-role">{u.role}</td>
-              {isFaculty && (
-                <td className="text-nowrap">
-                  <Button
-                    onClick={() => dispatch(setUser(u))}
-                    variant="warning"
-                    size="sm"
-                    className="me-2"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteUser(u._id)}
-                    variant="danger"
-                    size="sm"
-
-                  >
-                    Delete
-                  </Button>
-                </td>
-              )}
+              <td className="wd-login-id">{user.username}</td>
+              <td className="wd-section">S101</td>
+              <td className="wd-role">{user.role}</td>
             </tr>
           ))}
         </tbody>

@@ -2,41 +2,23 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../../store";
+import { RootState } from "../../../../store"; // Adjusted path to store
 import { Button, Form } from "react-bootstrap";
-
-// Import new client and async actions
-import * as client from "../client";
-import {
-  addAssignment,
-  updateAssignment,
-  fetchAssignmentsForCourse,
-} from "../reducer";
+import * as client from "../client"; // Import the API client
+import { addAssignment, updateAssignment, fetchAssignmentsForCourse } from "../reducer";
 
 export default function AssignmentEditor() {
   const { cid, aid } = useParams();
   const router = useRouter();
   const dispatch = useDispatch<any>();
 
-  // --- Data Fetching ---
-  const assignments = useSelector(
-    (state: RootState) => state.assignmentsReducer.assignments
+  // Get assignments from Redux
+  const { assignments, status } = useSelector(
+    (state: RootState) => state.assignmentsReducer
   );
-  const status = useSelector(
-    (state: RootState) => state.assignmentsReducer.status
-  );
-  const assignmentToEdit = assignments.find((a: any) => a._id === aid);
 
-  // 1. Fetch assignments if not already loaded (e.g., on page refresh)
-  useEffect(() => {
-    if (status === 'idle' && cid) {
-      dispatch(fetchAssignmentsForCourse(cid as string));
-    }
-  }, [status, cid, dispatch]);
-
-  // --- Form State ---
+  // Default state for a new assignment
   const defaultAssignmentState = {
-    _id: "",
     title: "New Assignment",
     description: "New Assignment Description",
     points: 100,
@@ -46,41 +28,47 @@ export default function AssignmentEditor() {
     course: cid,
   };
 
-  const [assignment, setAssignment] = useState(defaultAssignmentState);
+  const [assignment, setAssignment] = useState<any>(defaultAssignmentState);
 
-  // 2. Populate form once data is loaded
+  // 1. Fetch data if it's not loaded
   useEffect(() => {
-    if (aid !== "new" && assignmentToEdit) {
-      setAssignment({
-        ...defaultAssignmentState,
-        ...assignmentToEdit,
-      });
-    } else {
-      setAssignment({ ...defaultAssignmentState, course: cid as string });
+    if (status === "idle" && cid) {
+      dispatch(fetchAssignmentsForCourse(cid as string));
     }
-  }, [aid, assignmentToEdit, cid]);
+  }, [status, cid, dispatch]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  // 2. Populate form when data is available
+  useEffect(() => {
+    if (aid !== "new" && assignments.length > 0) {
+      const found = assignments.find((a: any) => a._id === aid);
+      if (found) {
+        setAssignment(found);
+      }
+    }
+  }, [aid, assignments]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    setAssignment((prev) => ({ ...prev, [id]: value }));
+    setAssignment((prev: any) => ({ ...prev, [id]: value }));
   };
 
-  // 3. Update handleSave to call client API first
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (aid === "new") {
+        // Create in DB
         const newAssignment = await client.createAssignment(cid as string, assignment);
-        dispatch(addAssignment(newAssignment)); // Update Redux
+        // Update Redux
+        dispatch(addAssignment(newAssignment));
       } else {
-        const updatedAssignment = await client.updateAssignment(assignment);
-        dispatch(updateAssignment(updatedAssignment)); // Update Redux
+        // Update in DB
+        await client.updateAssignment(assignment);
+        // Update Redux
+        dispatch(updateAssignment(assignment));
       }
-      router.push(`/Courses/${cid}/Assignments`); // Navigate back
+      router.push(`/Courses/${cid}/Assignments`);
     } catch (err) {
-      console.error("Failed to save assignment", err);
+      console.error("Failed to save assignment:", err);
     }
   };
 
@@ -88,14 +76,11 @@ export default function AssignmentEditor() {
     router.push(`/Courses/${cid}/Assignments`);
   };
 
-  // --- JSX (no changes) ---
   return (
     <div id="wd-assignments-editor">
       <Form onSubmit={handleSave}>
         <Form.Group className="mb-3">
-          <Form.Label htmlFor="title">
-            <h3>Assignment Name</h3>
-          </Form.Label>
+          <Form.Label htmlFor="title"><h3>Assignment Name</h3></Form.Label>
           <Form.Control
             id="title"
             value={assignment.title}
@@ -114,9 +99,7 @@ export default function AssignmentEditor() {
         </Form.Group>
 
         <Form.Group className="row mb-3">
-          <Form.Label htmlFor="points" className="col-sm-3 col-form-label text-end">
-            Points
-          </Form.Label>
+          <Form.Label htmlFor="points" className="col-sm-3 col-form-label text-end">Points</Form.Label>
           <div className="col-sm-9">
             <Form.Control
               type="number"
@@ -162,12 +145,8 @@ export default function AssignmentEditor() {
 
         <hr />
         <div className="d-flex justify-content-end">
-          <Button variant="secondary" onClick={handleCancel} className="me-2">
-            Cancel
-          </Button>
-          <Button variant="danger" type="submit">
-            Save
-          </Button>
+          <Button variant="secondary" onClick={handleCancel} className="me-2">Cancel</Button>
+          <Button variant="danger" type="submit">Save</Button>
         </div>
       </Form>
     </div>

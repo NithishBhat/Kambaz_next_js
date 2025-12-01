@@ -4,13 +4,16 @@ import { FaAlignJustify } from "react-icons/fa6";
 import CourseNavigation from "./Navigation";
 import Breadcrumb from "./Breadcrumb";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import { RootState } from "../../store";
+// FIXED: Imported the correct function name
+import { fetchEnrollmentsForUser } from "../../Enrollments/reducer";
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { cid } = useParams();
   const router = useRouter();
+  const dispatch = useDispatch<any>(); // Added <any> to prevent TypeScript dispatch errors
 
   // --- State from Redux ---
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
@@ -25,35 +28,36 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
   // --- Local UI State ---
   const [showNav, setShowNav] = useState(true);
 
-  // --- Enrollment Protection Logic (Corrected) ---
-  const [isEnrolled, setIsEnrolled] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // --- 1. Data Fetching Strategy ---
+  // If the user refreshes the page, Redux forgets the enrollments.
+  // We must fetch them again if the list is empty.
+  useEffect(() => {
+    if (currentUser && enrollments.length === 0) {
+      // FIXED: Calling the correct function name with the correct user ID
+      dispatch(fetchEnrollmentsForUser(currentUser._id));
+    }
+  }, [currentUser, enrollments, dispatch]);
 
+  // --- 2. Enrollment Protection Logic ---
   useEffect(() => {
     if (!currentUser) {
       router.push("/Dashboard");
       return;
     }
 
-    const enrolled = enrollments.some(
-      (e: any) => e.user === currentUser._id && e.course === cid // Corrected
-    );
+    // Only run the strict check if we actually have enrollments loaded.
+    if (enrollments.length > 0) {
+      const isEnrolled = enrollments.some(
+        (e: any) => String(e.user) === String(currentUser._id) && String(e.course) === String(cid)
+      );
 
-    if (!enrolled) {
-      alert("You are not enrolled in this course.");
-      router.push("/Dashboard");
-    } else {
-      setIsEnrolled(true);
+      if (!isEnrolled) {
+        alert("You are not enrolled in this course.");
+        router.push("/Dashboard");
+      }
     }
-    setIsLoading(false);
   }, [cid, currentUser, enrollments, router]);
 
-  // Don't render anything until the check is complete and successful
-  if (isLoading || !isEnrolled) {
-    return null;
-  }
-
-  // --- Original Render Logic ---
   return (
     <div id="wd-courses">
       <h2 className="text-danger">

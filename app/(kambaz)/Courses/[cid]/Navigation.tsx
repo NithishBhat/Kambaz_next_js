@@ -1,35 +1,46 @@
+"use client";
 import Link from "next/link";
-
+import { usePathname } from "next/navigation";
 
 interface CourseNavigationProps {
   cid: string | string[] | undefined;
 }
 
-
 export default function CourseNavigation({ cid }: CourseNavigationProps) {
+  const pathname = usePathname();
+
+  // We define the links here so we can loop through them
+  const links = [
+    { label: "Home", path: `/Courses/${cid}/Home` },
+    { label: "Modules", path: `/Courses/${cid}/Modules` },
+    { label: "Piazza", path: `/Courses/${cid}/Piazza` },
+    { label: "Zoom", path: `/Courses/${cid}/Zoom` },
+    { label: "Assignments", path: `/Courses/${cid}/Assignments` },
+    { label: "Quizzes", path: `/Courses/${cid}/Quizzes` },
+    { label: "Grades", path: `/Courses/${cid}/Grades` },
+    { label: "People", path: `/Courses/${cid}/People/Table` }, 
+  ];
+
   return (
     <div id="wd-courses-navigation" className="wd list-group fs-5 rounded-0">
+      {links.map((link) => {
+        // Check if the current URL contains the link name (e.g. "Modules" or "People")
+        // We use 'link.label' for the check, but handle specific cases if needed.
+        // For "People", the URL is /People/Table, so .includes("People") works perfectly.
+        const isActive = pathname.includes(link.label) || (link.label === "Home" && pathname.includes("/Home"));
 
-      <Link href={`/Courses/${cid}/Home`} id="wd-course-home-link"
-        className="list-group-item active border-0"> Home </Link>
-      
-      <Link href={`/Courses/${cid}/Modules`} id="wd-course-modules-link"
-        className="list-group-item text-danger border-0"> Modules </Link>
-      
-      <Link href={`/Courses/${cid}/Piazza`} id="wd-course-piazza-link"
-        className="list-group-item text-danger border-0"> Piazza </Link>
-      
-      <Link href={`/Courses/${cid}/Zoom`} id="wd-course-zoom-link"
-        className="list-group-item text-danger border-0"> Zoom </Link>
-      
-      <Link href={`/Courses/${cid}/Assignments`} id="wd-course-assignments-link"
-        className="list-group-item text-danger border-0"> Assignments </Link>
-      
-      <Link href={`/Courses/${cid}/Quizzes`} id="wd-course-quizzes-link"
-        className="list-group-item text-danger border-0"> Quizzes </Link>
-      
-      <Link href={`/Courses/${cid}/People/Table`} id="wd-course-people-link"
-        className="list-group-item text-danger border-0" > People </Link>
+        return (
+          <Link
+            key={link.path}
+            href={link.path}
+            className={`list-group-item border border-0 ${
+              isActive ? "active" : "text-danger"
+            }`}
+          >
+            {link.label}
+          </Link>
+        );
+      })}
     </div>
   );
 }

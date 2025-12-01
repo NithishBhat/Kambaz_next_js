@@ -1,22 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { modules } from "../../../Database";
-import { v4 as uuidv4 } from "uuid";
+
+// 1. Initial state is now empty (we fetch data from the server)
 const initialState = {
-  modules: modules,
+  modules: [],
 };
+
 const modulesSlice = createSlice({
   name: "modules",
   initialState,
   reducers: {
+    // 2. NEW: Action to load data fetched from the API
+    setModules: (state, action) => {
+      state.modules = action.payload;
+    },
+
+    // 3. UPDATED: No longer generate IDs locally. 
+    // The payload now contains the full module object returned by the server (including the new _id)
     addModule: (state, { payload: module }) => {
-      const newModule: any = {
-        _id: uuidv4(),
-        lessons: [],
-        name: module.name,
-        course: module.course,
-      };
+      const newModule: any = module;
       state.modules = [...state.modules, newModule] as any;
     },
+
     deleteModule: (state, { payload: moduleId }) => {
       state.modules = state.modules.filter(
         (m: any) => m._id !== moduleId);
@@ -33,6 +37,8 @@ const modulesSlice = createSlice({
     },
   },
 });
-export const { addModule, deleteModule, updateModule, editModule } =
+
+// 4. Export setModules so it can be used in page.tsx
+export const { addModule, deleteModule, updateModule, editModule, setModules } =
   modulesSlice.actions;
 export default modulesSlice.reducer;

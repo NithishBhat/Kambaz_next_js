@@ -2,9 +2,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as client from "./client";
 
-// 1. Initial state is now empty
+// 1. Initial state
 const initialState = {
-  enrollments: [] as any[], // <--- Add 'as any[]' here
+  enrollments: [] as any[],
   status: "idle",
 };
 
@@ -12,7 +12,8 @@ const initialState = {
 export const fetchEnrollmentsForUser = createAsyncThunk(
   "enrollments/fetchEnrollmentsForUser",
   async (uid: string) => {
-    const enrollments = await client.findEnrollmentsForUser(uid);
+    // FIXED: Changed 'userId' to 'uid' to match the function argument
+    const enrollments = await client.fetchEnrollments(uid);
     return enrollments;
   }
 );
@@ -23,11 +24,9 @@ const enrollmentsSlice = createSlice({
   reducers: {
     // 3. Sync actions to update state *after* API call succeeds
     addEnrollment: (state, action) => {
-      // action.payload is the new enrollment object from the server
       state.enrollments.push(action.payload as any);
     },
     removeEnrollment: (state, action) => {
-      // action.payload is { user, course }
       const { user, course } = action.payload;
       state.enrollments = state.enrollments.filter(
         (e: any) => !(e.user === user && e.course === course)

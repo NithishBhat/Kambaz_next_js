@@ -1,23 +1,14 @@
 "use client";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import * as client from "./client"; // Import the new client
+import * as client from "./client";
 
-// 1. Define the initial state (now empty)
 const initialState = {
-assignments: [] as any[],
-  assignment: {
-    title: "New Assignment",
-    description: "New Assignment Description",
-    points: 100,
-    dueDate: "2025-12-31",
-    availableFromDate: "2025-01-01",
-    availableUntilDate: "2025-12-31",
-    course: "",
-  },
-  status: "idle", // To track loading
+  assignments: [] as any[],
+  status: "idle",
+  error: null as string | null,
 };
 
-// 2. Create an async thunk to fetch assignments
+// Async Thunk to fetch assignments from API
 export const fetchAssignmentsForCourse = createAsyncThunk(
   "assignments/fetchAssignmentsForCourse",
   async (cid: string) => {
@@ -26,35 +17,31 @@ export const fetchAssignmentsForCourse = createAsyncThunk(
   }
 );
 
-// 3. Create the slice
 const assignmentsSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
-    // These actions are now "optimistic": we call them *after* the API call succeeds
-    addAssignment: (state, action) => {
-      state.assignments = [
-        ...state.assignments,
-        action.payload,
-      ] as any;
+    // Manually set assignments (if needed)
+    setAssignments: (state, action) => {
+      state.assignments = action.payload;
     },
-    deleteAssignment: (state, action) => {
-      // action.payload is the assignmentId
+    // Update state after successful API creation
+    addAssignment: (state, { payload: assignment }) => {
+      state.assignments.push(assignment);
+    },
+    // Update state after successful API deletion
+    deleteAssignment: (state, { payload: assignmentId }) => {
       state.assignments = state.assignments.filter(
-        (a: any) => a._id !== action.payload
+        (a: any) => a._id !== assignmentId
       );
     },
-    updateAssignment: (state, action) => {
-      // action.payload is the updated assignment
+    // Update state after successful API update
+    updateAssignment: (state, { payload: assignment }) => {
       state.assignments = state.assignments.map((a: any) =>
-        a._id === action.payload._id ? action.payload : a
-      ) as any;
-    },
-    setAssignment: (state, action) => {
-      state.assignment = action.payload;
+        a._id === assignment._id ? assignment : a
+      );
     },
   },
-  // 4. Handle the async thunk's lifecycle
   extraReducers: (builder) => {
     builder
       .addCase(fetchAssignmentsForCourse.pending, (state) => {
@@ -62,7 +49,11 @@ const assignmentsSlice = createSlice({
       })
       .addCase(fetchAssignmentsForCourse.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.assignments = action.payload as any;
+        state.assignments = action.payload;
+      })
+      .addCase(fetchAssignmentsForCourse.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch assignments";
       });
   },
 });
@@ -71,6 +62,6 @@ export const {
   addAssignment,
   deleteAssignment,
   updateAssignment,
-  setAssignment,
+  setAssignments,
 } = assignmentsSlice.actions;
 export default assignmentsSlice.reducer;
