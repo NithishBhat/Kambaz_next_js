@@ -45,10 +45,8 @@ export default function Modules() {
   };
 
   const publishModule = async (moduleId: string) => {
-    // Find the module in the list
-    const module = modules.find((m: any) => (m._id || m.id) === moduleId);
+    const module = modules.find((m: any) => (m._id || m.id) === moduleId) as any;
     if (module) {
-      // Toggle the published state and save
       await saveModule({ ...module, published: !module.published });
     }
   };
