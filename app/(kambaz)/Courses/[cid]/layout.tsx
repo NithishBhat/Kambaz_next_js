@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef } from "react";
 import { FaAlignJustify } from "react-icons/fa6";
 import CourseNavigation from "./Navigation";
 import Breadcrumb from "./Breadcrumb";
@@ -7,13 +7,13 @@ import Breadcrumb from "./Breadcrumb";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import { RootState } from "../../store";
-// FIXED: Imported the correct function name
 import { fetchEnrollmentsForUser } from "../../Enrollments/reducer";
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { cid } = useParams();
   const router = useRouter();
-  const dispatch = useDispatch<any>(); // Added <any> to prevent TypeScript dispatch errors
+  const dispatch = useDispatch<any>();
+  const lastUserId = useRef<string | null>(null);
 
   // --- State from Redux ---
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
@@ -21,22 +21,22 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
-  const { enrollments } = useSelector(
+  const { enrollments, status } = useSelector(
     (state: RootState) => state.enrollmentsReducer
   );
 
   // --- Local UI State ---
   const [showNav, setShowNav] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // --- 1. Data Fetching Strategy ---
-  // If the user refreshes the page, Redux forgets the enrollments.
-  // We must fetch them again if the list is empty.
+  // --- 1. Data Fetching - refetch when user changes ---
   useEffect(() => {
-    if (currentUser && enrollments.length === 0) {
-      // FIXED: Calling the correct function name with the correct user ID
+    if (currentUser && currentUser._id !== lastUserId.current) {
+      lastUserId.current = currentUser._id;
+      setIsAuthorized(false); // Reset authorization for new user
       dispatch(fetchEnrollmentsForUser(currentUser._id));
     }
-  }, [currentUser, enrollments, dispatch]);
+  }, [currentUser, dispatch]);
 
   // --- 2. Enrollment Protection Logic ---
   useEffect(() => {
@@ -45,18 +45,35 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Only run the strict check if we actually have enrollments loaded.
-    if (enrollments.length > 0) {
+    // Only check when data is loaded AND it's for the current user
+    if (status === "succeeded" && enrollments.length > 0) {
+      // Verify enrollments belong to current user
+      const enrollmentsBelongToUser = enrollments.some(
+        (e: any) => String(e.user) === String(currentUser._id)
+      );
+
+      if (!enrollmentsBelongToUser) {
+        // Still loading correct user's enrollments, wait...
+        return;
+      }
+
       const isEnrolled = enrollments.some(
         (e: any) => String(e.user) === String(currentUser._id) && String(e.course) === String(cid)
       );
 
-      if (!isEnrolled) {
+      if (isEnrolled) {
+        setIsAuthorized(true);
+      } else if (!isAuthorized) {
         alert("You are not enrolled in this course.");
         router.push("/Dashboard");
       }
     }
-  }, [cid, currentUser, enrollments, router]);
+  }, [cid, currentUser, enrollments, status, router, isAuthorized]);
+
+  // Show loading state while checking
+  if (!isAuthorized) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div id="wd-courses">
