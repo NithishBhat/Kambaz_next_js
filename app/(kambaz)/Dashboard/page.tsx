@@ -12,16 +12,16 @@ import {
   FormControl,
   CardFooter,
 } from "react-bootstrap";
-import { useState, useEffect } from "react"; // 1. Import useEffect
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNewCourse,
   deleteCourse,
   updateCourse,
+  fetchCourses,
 } from "../Courses/reducer";
 import { RootState } from "../store";
 
-// 2. Import the new client and async actions
 import * as enrollmentClient from "../Enrollments/client";
 import {
   addEnrollment,
@@ -30,18 +30,15 @@ import {
 } from "../Enrollments/reducer";
 
 export default function Dashboard() {
-  // --- Redux State ---
-  const dispatch = useDispatch<any>(); // 3. Use <any> for dispatching thunks
-  const { courses } = useSelector((state: RootState) => state.coursesReducer);
+  const dispatch = useDispatch<any>();
+  const { courses, loading } = useSelector((state: RootState) => state.coursesReducer);
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
-  // Get enrollments from Redux store
   const { enrollments } = useSelector(
     (state: RootState) => state.enrollmentsReducer
   );
 
-  // --- Local State ---
   const [course, setCourse] = useState<any>({
     _id: "0",
     name: "New Course",
@@ -51,16 +48,16 @@ export default function Dashboard() {
     image: "reactjs.png",
     description: "New Description",
   });
-  const [showAllCourses, setShowAllCourses] =useState(false);
+  const [showAllCourses, setShowAllCourses] = useState(false);
 
-  // 4. Fetch enrollments when currentUser is available
+  // Fetch courses and enrollments on load
   useEffect(() => {
+    dispatch(fetchCourses());
     if (currentUser) {
       dispatch(fetchEnrollmentsForUser(currentUser._id));
     }
   }, [currentUser, dispatch]);
 
-  // --- Enrollment Logic (no changes needed) ---
   const userEnrolledCourseIds = enrollments
     .filter((e: any) => e.user === currentUser?._id)
     .map((e: any) => e.course);
@@ -69,16 +66,13 @@ export default function Dashboard() {
     ? courses
     : courses.filter((c: any) => userEnrolledCourseIds.includes(c._id));
 
-  // --- 5. Refactor Event Handlers to be Async ---
   const handleEnroll = async (courseId: string) => {
     if (currentUser) {
       try {
-        // Call server API first
         const newEnrollment = await enrollmentClient.enrollUser(
           currentUser._id,
           courseId
         );
-        // Then update Redux state
         dispatch(addEnrollment(newEnrollment));
       } catch (err) {
         console.error("Failed to enroll:", err);
@@ -88,18 +82,13 @@ export default function Dashboard() {
     }
   };
 
-// This is the NEW corrected code
   const handleUnenroll = async (courseId: string) => {
-    // Add this check
     if (!currentUser) {
       console.error("Cannot unenroll: no user logged in.");
       return;
     }
-    
     try {
-      // Call server API first
       await enrollmentClient.unenrollUser(currentUser._id, courseId);
-      // Then update Redux state
       dispatch(removeEnrollment({ user: currentUser._id, course: courseId }));
     } catch (err) {
       console.error("Failed to unenroll:", err);
@@ -108,7 +97,10 @@ export default function Dashboard() {
 
   const isFaculty = (currentUser as any)?.role === "FACULTY";
 
-  // --- JSX (no changes) ---
+  if (loading) {
+    return <div>Loading courses...</div>;
+  }
+
   return (
     <div id="wd-dashboard">
       <div className="d-flex justify-content-between align-items-center">
@@ -163,8 +155,7 @@ export default function Dashboard() {
       )}
 
       <h2 id="wd-dashboard-published">
-        {showAllCourses ? "All Courses" : "My Courses"} ({coursesToDisplay.length}
-        )
+        {showAllCourses ? "All Courses" : "My Courses"} ({coursesToDisplay.length})
       </h2>
       <hr />
       <div id="wd-dashboard-courses">

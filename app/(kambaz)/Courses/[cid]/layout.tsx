@@ -4,13 +4,16 @@ import { FaAlignJustify } from "react-icons/fa6";
 import CourseNavigation from "./Navigation";
 import Breadcrumb from "./Breadcrumb";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import { RootState } from "../../store";
+import { fetchEnrollmentsForUser } from "../../Enrollments/reducer";
+import { fetchCourses } from "../reducer";
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { cid } = useParams();
   const router = useRouter();
+  const dispatch = useDispatch<any>();
 
   // --- State from Redux ---
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
@@ -24,33 +27,52 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
 
   // --- Local UI State ---
   const [showNav, setShowNav] = useState(true);
-
-  // --- Enrollment Protection Logic (Corrected) ---
-  const [isEnrolled, setIsEnrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // --- Fetch data and check enrollment ---
   useEffect(() => {
-    if (!currentUser) {
-      router.push("/Dashboard");
-      return;
-    }
+    const checkEnrollment = async () => {
+      if (!currentUser) {
+        router.push("/Dashboard");
+        return;
+      }
+
+      // Fetch courses and enrollments if not already loaded
+      if (courses.length === 0) {
+        await dispatch(fetchCourses());
+      }
+      if (enrollments.length === 0) {
+        await dispatch(fetchEnrollmentsForUser(currentUser._id));
+      }
+
+      setIsLoading(false);
+    };
+
+    checkEnrollment();
+  }, [currentUser, dispatch]);
+
+  // --- Check enrollment after data is loaded ---
+  useEffect(() => {
+    if (isLoading || !currentUser) return;
 
     const enrolled = enrollments.some(
-      (e: any) => e.user === currentUser._id && e.course === cid // Corrected
+      (e: any) => e.user === currentUser._id && e.course === cid
     );
 
     if (!enrolled) {
       alert("You are not enrolled in this course.");
       router.push("/Dashboard");
-    } else {
-      setIsEnrolled(true);
     }
-    setIsLoading(false);
-  }, [cid, currentUser, enrollments, router]);
+  }, [isLoading, enrollments, currentUser, cid, router]);
+
+  // Check if enrolled
+  const isEnrolled = enrollments.some(
+    (e: any) => e.user === currentUser?._id && e.course === cid
+  );
 
   // Don't render anything until the check is complete and successful
   if (isLoading || !isEnrolled) {
-    return null;
+    return <div>Loading...</div>;
   }
 
   // --- Original Render Logic ---
