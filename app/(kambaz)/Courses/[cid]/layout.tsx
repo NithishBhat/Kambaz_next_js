@@ -7,13 +7,12 @@ import Breadcrumb from "./Breadcrumb";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import { RootState } from "../../store";
-// FIXED: Imported the correct function name
 import { fetchEnrollmentsForUser } from "../../Enrollments/reducer";
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { cid } = useParams();
   const router = useRouter();
-  const dispatch = useDispatch<any>(); // Added <any> to prevent TypeScript dispatch errors
+  const dispatch = useDispatch<any>();
 
   // --- State from Redux ---
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
@@ -21,42 +20,63 @@ export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { currentUser } = useSelector(
     (state: RootState) => state.accountReducer
   );
-  const { enrollments } = useSelector(
+  const { enrollments, status } = useSelector(
     (state: RootState) => state.enrollmentsReducer
   );
 
   // --- Local UI State ---
   const [showNav, setShowNav] = useState(true);
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [checkComplete, setCheckComplete] = useState(false);
 
-  // --- 1. Data Fetching Strategy ---
-  // If the user refreshes the page, Redux forgets the enrollments.
-  // We must fetch them again if the list is empty.
+  // --- 1. Fetch enrollments when user is available ---
   useEffect(() => {
-    if (currentUser && enrollments.length === 0) {
-      // FIXED: Calling the correct function name with the correct user ID
+    if (currentUser && status === "idle") {
       dispatch(fetchEnrollmentsForUser(currentUser._id));
     }
-  }, [currentUser, enrollments, dispatch]);
+  }, [currentUser, status, dispatch]);
 
   // --- 2. Enrollment Protection Logic ---
   useEffect(() => {
+    // Don't check until we have a user and enrollments are loaded
     if (!currentUser) {
       router.push("/Dashboard");
       return;
     }
 
-    // Only run the strict check if we actually have enrollments loaded.
-    if (enrollments.length > 0) {
-      const isEnrolled = enrollments.some(
-        (e: any) => String(e.user) === String(currentUser._id) && String(e.course) === String(cid)
-      );
+    // Wait for enrollments to be fetched
+    if (status !== "succeeded") return;
 
-      if (!isEnrolled) {
-        alert("You are not enrolled in this course.");
-        router.push("/Dashboard");
-      }
+    // Prevent multiple checks
+    if (checkComplete) return;
+
+    const isEnrolled = enrollments.some(
+      (e: any) => String(e.user) === String(currentUser._id) && String(e.course) === String(cid)
+    );
+
+    // Faculty and Admin can access any course
+    const canAccessAnyCourse = currentUser.role === "FACULTY" || currentUser.role === "ADMIN";
+
+    if (isEnrolled || canAccessAnyCourse) {
+      setAccessGranted(true);
+    } else {
+      alert("You are not enrolled in this course.");
+      router.push("/Dashboard");
     }
-  }, [cid, currentUser, enrollments, router]);
+
+    setCheckComplete(true);
+  }, [cid, currentUser, enrollments, status, router, checkComplete]);
+
+  // Show loading while checking enrollment
+  if (!accessGranted) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "50vh" }}>
+        <div className="spinner-border text-danger" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div id="wd-courses">
