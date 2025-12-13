@@ -95,8 +95,12 @@ export default function Quizzes() {
     return `Not available until ${availableDate.toLocaleDateString()}`;
   };
 
-  // Sort quizzes by available date
-  const sortedQuizzes = [...quizzes].sort((a: any, b: any) => {
+  // Filter for students (only published), then sort by available date
+  const visibleQuizzes = currentUser?.role === "STUDENT"
+    ? quizzes.filter((q: any) => q.published)
+    : quizzes;
+
+  const sortedQuizzes = [...visibleQuizzes].sort((a: any, b: any) => {
     return new Date(a.availableDate).getTime() - new Date(b.availableDate).getTime();
   });
 
