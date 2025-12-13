@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../../store"; // Adjusted path to store
+import { RootState } from "../../../../store";
 import { Button, Form } from "react-bootstrap";
-import * as client from "../client"; // Import the API client
+import * as client from "../client";
 import { addAssignment, updateAssignment, fetchAssignmentsForCourse } from "../reducer";
 
 export default function AssignmentEditor() {
@@ -12,12 +12,16 @@ export default function AssignmentEditor() {
   const router = useRouter();
   const dispatch = useDispatch<any>();
 
-  // Get assignments from Redux
   const { assignments, status } = useSelector(
     (state: RootState) => state.assignmentsReducer
   );
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
 
-  // Default state for a new assignment
+  // Check if user can edit (FACULTY, ADMIN, or TA)
+  const canEdit = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN" || currentUser?.role === "TA";
+
   const defaultAssignmentState = {
     title: "New Assignment",
     description: "New Assignment Description",
@@ -30,14 +34,19 @@ export default function AssignmentEditor() {
 
   const [assignment, setAssignment] = useState<any>(defaultAssignmentState);
 
-  // 1. Fetch data if it's not loaded
+  // Redirect students trying to create new assignments
+  useEffect(() => {
+    if (!canEdit && aid === "new") {
+      router.push(`/Courses/${cid}/Assignments`);
+    }
+  }, [canEdit, aid, cid, router]);
+
   useEffect(() => {
     if (status === "idle" && cid) {
       dispatch(fetchAssignmentsForCourse(cid as string));
     }
   }, [status, cid, dispatch]);
 
-  // 2. Populate form when data is available
   useEffect(() => {
     if (aid !== "new" && assignments.length > 0) {
       const found = assignments.find((a: any) => a._id === aid);
@@ -54,16 +63,13 @@ export default function AssignmentEditor() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canEdit) return; // Extra safety check
     try {
       if (aid === "new") {
-        // Create in DB
         const newAssignment = await client.createAssignment(cid as string, assignment);
-        // Update Redux
         dispatch(addAssignment(newAssignment));
       } else {
-        // Update in DB
         await client.updateAssignment(assignment);
-        // Update Redux
         dispatch(updateAssignment(assignment));
       }
       router.push(`/Courses/${cid}/Assignments`);
@@ -75,6 +81,21 @@ export default function AssignmentEditor() {
   const handleCancel = () => {
     router.push(`/Courses/${cid}/Assignments`);
   };
+
+  // If student is viewing an existing assignment, show read-only view
+  if (!canEdit && aid !== "new") {
+    return (
+      <div id="wd-assignments-editor">
+        <h3>{assignment.title}</h3>
+        <p>{assignment.description}</p>
+        <p><strong>Points:</strong> {assignment.points}</p>
+        <p><strong>Due:</strong> {assignment.dueDate || "N/A"}</p>
+        <p><strong>Available From:</strong> {assignment.availableFromDate || "N/A"}</p>
+        <p><strong>Available Until:</strong> {assignment.availableUntilDate || "N/A"}</p>
+        <Button variant="secondary" onClick={handleCancel}>Back</Button>
+      </div>
+    );
+  }
 
   return (
     <div id="wd-assignments-editor">

@@ -16,6 +16,12 @@ export default function Assignments() {
   const { assignments } = useSelector(
     (state: RootState) => state.assignmentsReducer
   );
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
+
+  // Check if user can edit (FACULTY, ADMIN, or TA)
+  const canEdit = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN" || currentUser?.role === "TA";
 
   const fetchAssignments = async () => {
     if (cid) {
@@ -42,19 +48,23 @@ export default function Assignments() {
   return (
     <div id="wd-assignments">
       <input placeholder="Search for Assignments" id="wd-search-assignment" className="form-control w-50 d-inline-block" />
-      <Button
-        id="wd-add-assignment"
-        onClick={() => router.push(`/Courses/${cid}/Assignments/new`)}
-        className="float-end btn-danger"
-      >
-        + Assignment
-      </Button>
-      <Button id="wd-add-assignment-group" className="float-end me-2 btn-secondary">
-        + Group
-      </Button>
+      {canEdit && (
+        <>
+          <Button
+            id="wd-add-assignment"
+            onClick={() => router.push(`/Courses/${cid}/Assignments/new`)}
+            className="float-end btn-danger"
+          >
+            + Assignment
+          </Button>
+          <Button id="wd-add-assignment-group" className="float-end me-2 btn-secondary">
+            + Group
+          </Button>
+        </>
+      )}
 
       <h3 id="wd-assignments-title" className="mt-3">
-        ASSIGNMENTS 40% of Total <Button variant="secondary" size="sm">+</Button>
+        ASSIGNMENTS 40% of Total {canEdit && <Button variant="secondary" size="sm">+</Button>}
       </h3>
       <ul id="wd-assignment-list" className="list-group mt-3">
         {assignments.map((assignment: any) => (
@@ -79,13 +89,15 @@ export default function Assignments() {
                   <strong> Due</strong> {assignment.dueDate || "N/A"} | {assignment.points} pts
                 </small>
               </div>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => handleDelete(assignment._id)}
-              >
-                Delete
-              </Button>
+              {canEdit && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => handleDelete(assignment._id)}
+                >
+                  Delete
+                </Button>
+              )}
             </div>
           </li>
         ))}

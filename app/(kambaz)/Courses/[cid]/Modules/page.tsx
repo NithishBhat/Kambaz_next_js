@@ -17,8 +17,12 @@ export default function Modules() {
   const courseId = cid as string;
 
   const { modules } = useSelector((state: RootState) => state.modulesReducer);
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
   const dispatch = useDispatch();
   const [moduleName, setModuleName] = useState("");
+
+  // Check if user can edit (FACULTY, ADMIN, or TA)
+  const canEdit = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN" || currentUser?.role === "TA";
 
   const fetchModules = async () => {
     const modules = await client.findModulesForCourse(courseId);
@@ -53,54 +57,58 @@ export default function Modules() {
 
   return (
     <div>
-      <ModulesControls
-        setModuleName={setModuleName}
-        moduleName={moduleName}
-        addModule={() => {
-          createModule({ name: moduleName, course: courseId });
-          setModuleName("");
-        }}
-      />
+      {canEdit && (
+        <ModulesControls
+          setModuleName={setModuleName}
+          moduleName={moduleName}
+          addModule={() => {
+            createModule({ name: moduleName, course: courseId });
+            setModuleName("");
+          }}
+        />
+      )}
       <br /><br /><br /><br />
       <ListGroup id="wd-modules" className="rounded-0">
         {modules.map((module: any, index: number) => (
-            <ListGroupItem key={module._id || module.id || index} className="wd-module p-0 mb-5 fs-5 border-gray">
-              <div className="wd-title p-3 ps-2 bg-secondary">
-                <BsGripVertical className="me-2 fs-3" />
-                {!module.editing && module.name}
-                {module.editing && (
-                  <FormControl
-                    className="w-50 d-inline-block"
-                    onChange={(e) =>
-                      dispatch(updateModule({ ...module, name: e.target.value }))
+          <ListGroupItem key={module._id || module.id || index} className="wd-module p-0 mb-5 fs-5 border-gray">
+            <div className="wd-title p-3 ps-2 bg-secondary">
+              <BsGripVertical className="me-2 fs-3" />
+              {!module.editing && module.name}
+              {module.editing && (
+                <FormControl
+                  className="w-50 d-inline-block"
+                  onChange={(e) =>
+                    dispatch(updateModule({ ...module, name: e.target.value }))
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      saveModule({ ...module, editing: false });
                     }
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        saveModule({ ...module, editing: false });
-                      }
-                    }}
-                    defaultValue={module.name}
-                  />
-                )}
+                  }}
+                  defaultValue={module.name}
+                />
+              )}
+              {canEdit && (
                 <ModulesControlButton
                   moduleId={module._id || module.id}
                   deleteModule={(moduleId) => removeModule(moduleId)}
                   editModule={(moduleId) => dispatch(editModule(moduleId))}
                   publishModule={(moduleId) => publishModule(moduleId)}
                 />
-              </div>
-              {module.lessons && (
-                <ListGroup className="wd-lessons rounded-0">
-                  {module.lessons.map((lesson: any, index: number) => (
-                    <ListGroupItem key={lesson._id || lesson.id || index} className="wd-lesson p-3 ps-1">
-                      <BsGripVertical className="me-2 fs-3" /> {lesson.name}{" "}
-                      <LessonControlButtons />
-                    </ListGroupItem>
-                  ))}
-                </ListGroup>
               )}
-            </ListGroupItem>
-          ))}
+            </div>
+            {module.lessons && (
+              <ListGroup className="wd-lessons rounded-0">
+                {module.lessons.map((lesson: any, index: number) => (
+                  <ListGroupItem key={lesson._id || lesson.id || index} className="wd-lesson p-3 ps-1">
+                    <BsGripVertical className="me-2 fs-3" /> {lesson.name}{" "}
+                    <LessonControlButtons />
+                  </ListGroupItem>
+                ))}
+              </ListGroup>
+            )}
+          </ListGroupItem>
+        ))}
       </ListGroup>
     </div>
   );

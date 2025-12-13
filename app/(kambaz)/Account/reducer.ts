@@ -8,7 +8,7 @@ interface User {
   lastName?: string;
   email?: string;
   dob?: Date;
-  role: "STUDENT" | "FACULTY" | "ADMIN" | "USER";
+  role: "STUDENT" | "FACULTY" | "ADMIN" | "USER" | "TA";
   loginId?: string;
   section?: string;
   lastActivity?: Date;
