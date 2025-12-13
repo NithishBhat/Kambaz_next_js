@@ -15,20 +15,25 @@ export default function Modules() {
   const { cid } = useParams();
 
   const { modules } = useSelector((state: RootState) => state.modulesReducer);
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
   const dispatch = useDispatch();
 
   const [moduleName, setModuleName] = useState("");
 
+  const isFaculty = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
+
   return (
     <div>
-      <ModulesControls
-        setModuleName={setModuleName}
-        moduleName={moduleName}
-        addModule={() => {
-          dispatch(addModule({ name: moduleName, course: cid }));
-          setModuleName("");
-        }}
-      />
+      {isFaculty && (
+        <ModulesControls
+          setModuleName={setModuleName}
+          moduleName={moduleName}
+          addModule={() => {
+            dispatch(addModule({ name: moduleName, course: cid }));
+            setModuleName("");
+          }}
+        />
+      )}
       <br />
       <br />
       <br />
@@ -41,7 +46,7 @@ export default function Modules() {
               <div className="wd-title p-3 ps-2 bg-secondary">
                 <BsGripVertical className="me-2 fs-3" />
                 {!module.editing && module.name}
-                {module.editing && (
+                {module.editing && isFaculty && (
                   <FormControl
                     className="w-50 d-inline-block"
                     onChange={(e) =>
@@ -59,13 +64,15 @@ export default function Modules() {
                     defaultValue={module.name}
                   />
                 )}
-                <ModulesControlButton
-                  moduleId={module._id}
-                  deleteModule={(moduleId) => {
-                    dispatch(deleteModule(moduleId));
-                  }}
-                  editModule={(moduleId) => dispatch(editModule(moduleId))}
-                />
+                {isFaculty && (
+                  <ModulesControlButton
+                    moduleId={module._id}
+                    deleteModule={(moduleId) => {
+                      dispatch(deleteModule(moduleId));
+                    }}
+                    editModule={(moduleId) => dispatch(editModule(moduleId))}
+                  />
+                )}
               </div>
               {module.lessons && (
                 <ListGroup className="wd-lessons rounded-0">
