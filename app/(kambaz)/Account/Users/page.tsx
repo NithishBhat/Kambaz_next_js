@@ -1,24 +1,18 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Table, Button, Form, Row, Col } from "react-bootstrap";
-import { FaPlus, FaUser, FaCheck, FaTrash, FaPencilAlt } from "react-icons/fa";
+import { FaPlus, FaUserCircle } from "react-icons/fa";
 import * as client from "../client";
-import { useRouter } from "next/navigation";
+import PeopleDetails from "../../Courses/[cid]/People/Details";
 
 export default function Users() {
   const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
-  
-  // State for the user currently being edited/created
-  const [user, setUser] = useState<any>({
-    username: "", password: "", firstName: "", lastName: "", role: "STUDENT", email: ""
-  });
-
-  const router = useRouter();
+  const [selectedUid, setSelectedUid] = useState<string | null>(null);
 
   const fetchUsers = async () => {
-    const users = await client.findAllUsers(); //heelo
+    const users = await client.findAllUsers();
     setUsers(users);
   };
 
@@ -43,22 +37,16 @@ export default function Users() {
   };
 
   const createUser = async () => {
-    const newUser = await client.createUser(user);
-    setUsers([...users, newUser]);
-    // Reset form
-    setUser({ username: "", password: "", firstName: "", lastName: "", role: "STUDENT", email: "" });
-  };
-
-  const deleteUser = async (uid: string) => {
-    await client.deleteUser(uid);
-    setUsers(users.filter((u) => u._id !== uid));
-  };
-
-  const updateUser = async () => {
-    const updatedUser = await client.updateUser(user);
-    setUsers(users.map((u) => (u._id === updatedUser._id ? updatedUser : u)));
-    // Reset form after update
-    setUser({ username: "", password: "", firstName: "", lastName: "", role: "STUDENT", email: "" });
+    const user = await client.createUser({
+      firstName: "New",
+      lastName: `User${users.length + 1}`,
+      username: `newuser${Date.now()}`,
+      password: "password123",
+      email: `email${users.length + 1}@neu.edu`,
+      section: "S101",
+      role: "STUDENT",
+    });
+    setUsers([...users, user]);
   };
 
   useEffect(() => {
@@ -66,106 +54,78 @@ export default function Users() {
   }, []);
 
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center">
-        <h3>Users</h3>
-        {/* Toggle between Create and Update buttons based on whether we have an ID */}
-        {user._id ? (
-           <Button variant="warning" onClick={updateUser}>
-             <FaCheck className="me-2" /> Update User
-           </Button>
-        ) : (
-           <Button variant="success" onClick={createUser}>
-             <FaPlus className="me-2" /> Add User
-           </Button>
-        )}
-      </div>
+    <div id="wd-users">
+      <h3>Users</h3>
       
-      <Row className="mb-3 mt-3">
-        <Col md={12}>
-           {/* Form to Create/Edit User */}
-           <div className="d-flex gap-2 mb-3">
-             <Form.Control 
-                placeholder="First Name" 
-                value={user.firstName}
-                onChange={(e) => setUser({...user, firstName: e.target.value})} 
-             />
-             <Form.Control 
-                placeholder="Last Name" 
-                value={user.lastName}
-                onChange={(e) => setUser({...user, lastName: e.target.value})} 
-             />
-             <Form.Control 
-                placeholder="Username" 
-                value={user.username}
-                onChange={(e) => setUser({...user, username: e.target.value})} 
-             />
-             <Form.Control 
-                placeholder="Password" 
-                value={user.password}
-                onChange={(e) => setUser({...user, password: e.target.value})} 
-             />
-             <Form.Select
-                value={user.role}
-                onChange={(e) => setUser({...user, role: e.target.value})}
-             >
-                <option value="STUDENT">Student</option>
-                <option value="TA">TA</option>
-                <option value="FACULTY">Faculty</option>
-                <option value="ADMIN">Admin</option>
-             </Form.Select>
-           </div>
-        </Col>
-      </Row>
+      {/* PeopleDetails sidebar */}
+      {selectedUid && (
+        <PeopleDetails
+          uid={selectedUid}
+          onClose={() => {
+            setSelectedUid(null);
+            fetchUsers();
+          }}
+        />
+      )}
 
+      {/* Filters and Add Button */}
       <Row className="mb-3">
-        <Col md={4}>
+        <Col md={3}>
+          <Form.Control
+            placeholder="Search by name..."
+            value={name}
+            onChange={(e) => filterUsersByName(e.target.value)}
+          />
+        </Col>
+        <Col md={3}>
           <Form.Select
             value={role}
             onChange={(e) => filterUsersByRole(e.target.value)}
           >
             <option value="">All Roles</option>
-            <option value="STUDENT">Student</option>
-            <option value="TA">TA</option>
+            <option value="STUDENT">Students</option>
+            <option value="TA">Assistants</option>
             <option value="FACULTY">Faculty</option>
-            <option value="ADMIN">Admin</option>
+            <option value="ADMIN">Administrators</option>
           </Form.Select>
         </Col>
-        <Col md={4}>
-          <Form.Control
-            placeholder="Search people"
-            value={name}
-            onChange={(e) => filterUsersByName(e.target.value)}
-          />
+        <Col md={6} className="text-end">
+          <Button variant="danger" onClick={createUser}>
+            <FaPlus className="me-2" />
+            People
+          </Button>
         </Col>
       </Row>
 
-      <Table striped responsive>
+      {/* Users Table */}
+      <Table striped hover>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Username</th>
+            <th>Login ID</th>
+            <th>Section</th>
             <th>Role</th>
-            <th>Actions</th>
+            <th>Last Activity</th>
+            <th>Total Activity</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((u: any) => (
-            <tr key={u._id}>
-              <td>
-                <FaUser className="me-2 fs-1 text-secondary" />
-                {u.firstName} {u.lastName}
+          {users.map((user: any) => (
+            <tr 
+              key={user._id}
+              onClick={() => setSelectedUid(user._id)}
+              style={{ cursor: "pointer" }}
+            >
+              <td className="wd-full-name text-nowrap">
+                <FaUserCircle className="me-2 fs-1 text-secondary" />
+                <span className="wd-first-name text-danger">{user.firstName}</span>{" "}
+                <span className="wd-last-name text-danger">{user.lastName}</span>
               </td>
-              <td>{u.username}</td>
-              <td>{u.role}</td>
-              <td>
-                <Button variant="warning" className="me-2" onClick={() => setUser(u)}>
-                  <FaPencilAlt />
-                </Button>
-                <Button variant="danger" onClick={() => deleteUser(u._id)}>
-                  <FaTrash />
-                </Button>
-              </td>
+              <td className="wd-login-id">{user.loginId}</td>
+              <td className="wd-section">{user.section}</td>
+              <td className="wd-role">{user.role}</td>
+              <td className="wd-last-activity">{user.lastActivity}</td>
+              <td className="wd-total-activity">{user.totalActivity}</td>
             </tr>
           ))}
         </tbody>

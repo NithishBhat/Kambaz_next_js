@@ -21,7 +21,6 @@ import * as enrollmentClient from "../Enrollments/client";
 export default function Dashboard() {
   const { currentUser } = useSelector((state: RootState) => state.accountReducer);
   
-  // Local state for courses (fetched from server)
   const [courses, setCourses] = useState<any[]>([]);
   const [course, setCourse] = useState<any>({
     _id: "0",
@@ -35,11 +34,17 @@ export default function Dashboard() {
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [enrollments, setEnrollments] = useState<any[]>([]);
 
-  // Fetch Courses and Enrollments from Server
-  const getData = async () => {
+  const fetchCourses = async () => {
     try {
       const coursesData = await courseClient.fetchAllCourses();
       setCourses(coursesData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchEnrollments = async () => {
+    try {
       if (currentUser) {
         const enrollmentsData = await enrollmentClient.fetchEnrollments(currentUser._id);
         setEnrollments(enrollmentsData);
@@ -49,14 +54,20 @@ export default function Dashboard() {
     }
   };
 
+  const getData = async () => {
+    await fetchCourses();
+    await fetchEnrollments();
+  };
+
   useEffect(() => {
     getData();
   }, [currentUser]);
 
-  // Course CRUD Operations
   const addNewCourse = async () => {
     const newCourse = await courseClient.createCourse(course);
     setCourses([...courses, newCourse]);
+    // Refresh enrollments so the new course shows as enrolled immediately
+    await fetchEnrollments();
   };
 
   const deleteCourse = async (courseId: string) => {
@@ -69,24 +80,22 @@ export default function Dashboard() {
     setCourses(courses.map((c) => (c._id === course._id ? course : c)));
   };
 
-  // Enrollment Logic
+  // Enroll using new route (Page 245)
   const handleEnroll = async (courseId: string) => {
     if (!currentUser) return;
     await enrollmentClient.enrollUser(currentUser._id, courseId);
-    // Refresh data to update UI
-    getData();
+    await fetchEnrollments();
   };
 
+  // Unenroll using new route (Page 245)
   const handleUnenroll = async (courseId: string) => {
     if (!currentUser) return;
     await enrollmentClient.unenrollUser(currentUser._id, courseId);
-    // Refresh data to update UI
-    getData();
+    await fetchEnrollments();
   };
 
   const isFaculty = currentUser?.role === "FACULTY";
   
-  // Filter Logic
   const myEnrollments = enrollments.filter((enrollment) => enrollment.user === currentUser?._id);
   const myCourseIds = myEnrollments.map((e) => e.course);
   
@@ -97,15 +106,13 @@ export default function Dashboard() {
   return (
     <div id="wd-dashboard">
       <div className="d-flex justify-content-between align-items-center">
-        <h1 id="wd-dashboard-title" className="mb-0">
-          Dashboard
-        </h1>
+        <h1 id="wd-dashboard-title" className="mb-0">Dashboard</h1>
         {currentUser && (
           <Button
             variant="primary"
             onClick={() => setShowAllCourses(!showAllCourses)}
           >
-            {showAllCourses ? "Show My Courses" : "Show All Courses"}
+            {showAllCourses ? "My Courses" : "All Courses"}
           </Button>
         )}
       </div>
@@ -139,9 +146,7 @@ export default function Dashboard() {
             as="textarea"
             value={course.description}
             rows={3}
-            onChange={(e) =>
-              setCourse({ ...course, description: e.target.value })
-            }
+            onChange={(e) => setCourse({ ...course, description: e.target.value })}
           />
           <hr />
         </>
@@ -170,7 +175,7 @@ export default function Dashboard() {
                     }}
                   >
                     <CardImg
-                      src={`/images/${course.image || "reactjs.jpg"}`} // Fallback image
+                      src={`/images/${course.image || "reactjs.jpg"}`}
                       variant="top"
                       width="100%"
                       height={160}
@@ -188,22 +193,25 @@ export default function Dashboard() {
                     </CardBody>
                   </Link>
                   <CardFooter>
-                    {isEnrolled ? (
-                      <Button
-                        variant="danger"
-                        className="w-100 mb-2"
-                        onClick={() => handleUnenroll(course._id)}
-                      >
-                        Unenroll
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="success"
-                        className="w-100 mb-2"
-                        onClick={() => handleEnroll(course._id)}
-                      >
-                        Enroll
-                      </Button>
+                    {/* Only show Enroll/Unenroll buttons when viewing All Courses */}
+                    {showAllCourses && (
+                      isEnrolled ? (
+                        <Button
+                          variant="danger"
+                          className="w-100 mb-2"
+                          onClick={() => handleUnenroll(course._id)}
+                        >
+                          Unenroll
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="success"
+                          className="w-100 mb-2"
+                          onClick={() => handleEnroll(course._id)}
+                        >
+                          Enroll
+                        </Button>
+                      )
                     )}
                     {isFaculty && (
                       <div className="d-flex justify-content-between">
